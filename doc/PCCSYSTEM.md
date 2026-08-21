@@ -132,10 +132,36 @@ The contract surface is centered on typed Rust modules and deterministic JSON ar
 - downstream release and release readiness contracts
 - release attestation and sealed release bundle contracts
 - terminal consumer import receipt contracts
+- context assembly contracts, including the governed memory source class and its
+  provenance record
 
 ### Contract rule
 
 The library is the authority for contract shape in this repo. Proof binaries prove the contracts; they do not redefine them.
+
+### Source admission is double-gated
+
+A context source is admitted only if its class is phase-1 allowed **and** the
+request lists it in `allowed_source_classes`. Adding a class therefore makes it
+available, never supplied: a task profile that predates a class cannot receive
+one by accident. This is what makes widening `SourceClass` a safe change, and it
+is the reason `GovernedMemoryFact` was made phase-1 allowed on landing rather
+than staged.
+
+### Governed memory must say where it came from
+
+`SourceClass::GovernedMemoryFact` requires `SourceProvenance` — the memory fact,
+the retrieval receipt that supplied it, and the authority it was used under. The
+field is optional in the type so existing callers and existing serialized
+requests are unaffected, and mandatory in the rule: a memory source without it is
+refused rather than admitted unlabelled.
+
+Provenance is appended to the entry's contribution to `bundle_hash` **only when
+present**. An entry without it hashes exactly as it always did, so no pre-existing
+bundle identity moves; an entry with it binds that provenance into the bundle's
+identity, so a bundle cannot silently change which memory it rested on while
+keeping its id. Provenance recorded but unhashed would be a label rather than
+evidence.
 
 ---
 
@@ -178,6 +204,12 @@ This repo advances through governed proof slices rather than freeform feature dr
 
 The repo has reached capstone proof posture through Slice 36, ending at terminal consumer import validation and a program capstone report.
 
+Slice 37 reopens the context-assembly contract to admit a governed memory source
+class. It sits outside the export/import/release chain the capstone sealed, and
+does not disturb it: the two bundle hashes captured before the slice are asserted
+as goldens, so a context bundle assembled under the earlier slices assembles
+identically under this one.
+
 ---
 
 ## 40. Validation and Proof
@@ -195,6 +227,22 @@ Validation is evidence-based and fail-closed.
 ### Current terminal verifier
 
 The current proof chain culminates in `bash scripts/verify_slice_36.sh`, which exercises the full end-to-end chain through terminal consumer import and program capstone reporting.
+
+### Context-assembly verifiers
+
+Two verifiers sit outside that chain because they prove a different contract:
+
+- `bash scripts/verify_context_assembly_continuity.sh` — the continuity profile's
+  report is byte-identical across repeated emission.
+- `bash scripts/verify_slice_37.sh` — the governed memory source class: its
+  provenance rule, its fail-closed refusals, that provenance is bound into the
+  bundle identity, that the exported schemas match the types they are generated
+  from, and that no pre-existing bundle hash moved.
+
+The second checks a recorded hash value, not merely repeatability. A verifier
+that only compares two runs of the same build cannot notice a hash that moved
+once and then stayed put, so the values captured before the change are asserted
+literally.
 
 ---
 

@@ -32,6 +32,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 2,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "scene-summary://chapter-03/scene-09".to_string(),
@@ -39,6 +40,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 14,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "lore://canon/location/stillwater".to_string(),
@@ -46,6 +48,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 12,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "style://house/keep-sentences-clean".to_string(),
@@ -53,6 +56,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 7,
                 authority_state: AuthorityState::Accepted,
                 is_override: true,
+                provenance: None,
             },
         ],
     }

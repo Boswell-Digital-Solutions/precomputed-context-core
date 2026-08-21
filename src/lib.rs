@@ -28,7 +28,7 @@ pub use context_assembly::{
     assemble_context, AuthorityState, ContextAssemblyError, ContextAssemblyOutput,
     ContextAssemblyRequest, ContextBundleManifest, FreshnessBand, FreshnessPolicy,
     OverrideDecision, OverridePosture, ReplayEligibility, SourceClass, SourceInput,
-    SourceInventoryEntry, TargetRefs,
+    SourceInventoryEntry, SourceProvenance, TargetRefs,
 };
 pub use durable_evidence::{
     ArtifactInvalidationEvidenceRecord, CoalescedBatchRecord, EvidenceAdmissionResult,

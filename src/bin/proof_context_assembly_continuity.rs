@@ -50,6 +50,7 @@ fn continuity_request() -> ContextAssemblyRequest {
                 age_minutes: 4,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "scene-summary://chapter-05/scene-01".to_string(),
@@ -57,6 +58,7 @@ fn continuity_request() -> ContextAssemblyRequest {
                 age_minutes: 18,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "lore://canon/character/amara".to_string(),
@@ -64,6 +66,7 @@ fn continuity_request() -> ContextAssemblyRequest {
                 age_minutes: 9,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "style://house/keep-sentences-clean".to_string(),
@@ -71,6 +74,7 @@ fn continuity_request() -> ContextAssemblyRequest {
                 age_minutes: 6,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
         ],
     }
