@@ -87,16 +87,18 @@ pub fn build_replay_bundle_manifest(
 
     let mut ordered_artifact_records = artifact_invalidation_records.to_vec();
     ordered_artifact_records.sort_by(|left, right| {
-        left.changed_at
-            .cmp(&right.changed_at)
-            .then_with(|| left.invalidation_record_id.cmp(&right.invalidation_record_id))
+        left.changed_at.cmp(&right.changed_at).then_with(|| {
+            left.invalidation_record_id
+                .cmp(&right.invalidation_record_id)
+        })
     });
 
     let mut ordered_packet_records = packet_reevaluation_records.to_vec();
     ordered_packet_records.sort_by(|left, right| {
-        left.changed_at
-            .cmp(&right.changed_at)
-            .then_with(|| left.packet_reevaluation_id.cmp(&right.packet_reevaluation_id))
+        left.changed_at.cmp(&right.changed_at).then_with(|| {
+            left.packet_reevaluation_id
+                .cmp(&right.packet_reevaluation_id)
+        })
     });
 
     let mut ordered_remediation_records = remediation_records.to_vec();
@@ -193,11 +195,8 @@ pub fn load_evidence_bundle(
         .validate()
         .map_err(EvidenceBundleError::Validation)?;
 
-    let event_receipts = load_record_set::<EventReceiptRecord>(
-        root,
-        "event_receipts",
-        &manifest.event_receipt_ids,
-    )?;
+    let event_receipts =
+        load_record_set::<EventReceiptRecord>(root, "event_receipts", &manifest.event_receipt_ids)?;
 
     let artifact_invalidation_records = load_record_set::<ArtifactInvalidationEvidenceRecord>(
         root,
@@ -343,8 +342,8 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use crate::durable_evidence::{
-        ArtifactInvalidationEvidenceRecord, EvidenceAdmissionResult, EvidenceTargetKind,
-        EventReceiptRecord, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
+        ArtifactInvalidationEvidenceRecord, EventReceiptRecord, EvidenceAdmissionResult,
+        EvidenceTargetKind, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
     };
     use crate::enums::{AdmissibilityState, EventType, FreshnessState};
 
@@ -454,7 +453,9 @@ mod tests {
             artifact_invalidation_record_ids: vec![],
             packet_reevaluation_record_ids: vec![],
             remediation_record_ids: vec![],
-            final_summary: "event_receipts=1 artifact_invalidations=0 packet_reevaluations=0 remediations=0".into(),
+            final_summary:
+                "event_receipts=1 artifact_invalidations=0 packet_reevaluations=0 remediations=0"
+                    .into(),
             proof_digest: "fnv1a64:deadbeefdeadbeef".into(),
         };
 
@@ -531,9 +532,7 @@ mod tests {
             .expect("system time should be after epoch")
             .as_nanos();
 
-        env::temp_dir().join(format!(
-            "precomputed_context_core_{label}_{nanos}"
-        ))
+        env::temp_dir().join(format!("precomputed_context_core_{label}_{nanos}"))
     }
 
     fn cleanup_root(root: &Path) {

@@ -12,8 +12,7 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const RELEASE_ATTESTATION_RECEIPT_SCHEMA_VERSION: &str =
-    "proof.release-attestation-receipt.v1";
+pub const RELEASE_ATTESTATION_RECEIPT_SCHEMA_VERSION: &str = "proof.release-attestation-receipt.v1";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ReleaseAttestationReceipt {
@@ -51,8 +50,10 @@ pub fn build_release_attestation_receipt(
 ) -> Result<ReleaseAttestationReceipt, Box<dyn Error>> {
     let release_receipt_path =
         default_downstream_release_receipt_path(downstream_release_workspace_current_dir);
-    let readiness_receipt_path = default_release_readiness_receipt_path(readiness_workspace_current_dir);
-    let operator_summary_path = default_operator_release_summary_path(readiness_workspace_current_dir);
+    let readiness_receipt_path =
+        default_release_readiness_receipt_path(readiness_workspace_current_dir);
+    let operator_summary_path =
+        default_operator_release_summary_path(readiness_workspace_current_dir);
 
     let release_receipt = load_downstream_release_receipt(&release_receipt_path)?;
     let readiness_receipt = load_release_readiness_receipt(&readiness_receipt_path)?;
@@ -73,7 +74,8 @@ pub fn build_release_attestation_receipt(
         return Err("release readiness receipt continuity mismatch".into());
     }
 
-    let release_package_dir = default_downstream_release_package_dir(downstream_release_workspace_current_dir);
+    let release_package_dir =
+        default_downstream_release_package_dir(downstream_release_workspace_current_dir);
     let ack_path = release_package_dir.join("consumer_acknowledgment_receipt.json");
     let closure_path = release_package_dir.join("return_channel_closure_receipt.json");
     if !ack_path.exists() {
@@ -124,7 +126,8 @@ pub fn publish_release_attestation_package(
         package_dir.join("operator_release_summary.json"),
     )?;
 
-    let release_package_dir = default_downstream_release_package_dir(downstream_release_workspace_current_dir);
+    let release_package_dir =
+        default_downstream_release_package_dir(downstream_release_workspace_current_dir);
     fs::copy(
         release_package_dir.join("consumer_acknowledgment_receipt.json"),
         package_dir.join("consumer_acknowledgment_receipt.json"),

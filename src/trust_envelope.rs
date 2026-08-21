@@ -135,8 +135,12 @@ pub fn build_signed_trust_envelope_for_zip(
 }
 
 pub fn verify_signed_trust_envelope(envelope: &SignedTrustEnvelope) -> Result<(), Box<dyn Error>> {
-    let signer = known_proof_signer_by_id(&envelope.signer_id)
-        .ok_or_else(|| format!("unknown signer_id in trust envelope: {}", envelope.signer_id))?;
+    let signer = known_proof_signer_by_id(&envelope.signer_id).ok_or_else(|| {
+        format!(
+            "unknown signer_id in trust envelope: {}",
+            envelope.signer_id
+        )
+    })?;
 
     let expected_signature = sign_payload_for_signer(&envelope.canonical_payload(), signer);
     if envelope.signature != expected_signature {
@@ -170,7 +174,8 @@ pub fn load_signed_trust_envelope(path: &Path) -> Result<SignedTrustEnvelope, Bo
 
 pub fn write_default_trust_envelope_for_zip(zip_path: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let sha256_path = default_sha256_sidecar_path(zip_path);
-    let envelope = build_signed_trust_envelope_for_zip(zip_path, &sha256_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(zip_path, &sha256_path, default_proof_signer())?;
     let envelope_path = default_trust_envelope_path(zip_path);
     write_signed_trust_envelope(&envelope_path, &envelope)?;
     Ok(envelope_path)

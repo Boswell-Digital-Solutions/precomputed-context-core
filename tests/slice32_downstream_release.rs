@@ -67,8 +67,12 @@ fn valid_downstream_release_builds_and_publishes() -> Result<(), Box<dyn Error>>
     publish_downstream_release_package(&handoff_dir, &ack_dir, &output_dir, &receipt)?;
 
     assert!(output_dir.join("downstream_release_receipt.json").exists());
-    assert!(output_dir.join("release_package/consumer_acknowledgment_receipt.json").exists());
-    assert!(output_dir.join("release_package/return_channel_closure_receipt.json").exists());
+    assert!(output_dir
+        .join("release_package/consumer_acknowledgment_receipt.json")
+        .exists());
+    assert!(output_dir
+        .join("release_package/return_channel_closure_receipt.json")
+        .exists());
     Ok(())
 }
 
@@ -85,7 +89,9 @@ fn closure_drift_fails_closed() -> Result<(), Box<dyn Error>> {
     let error = build_downstream_release_receipt(&handoff_dir, &ack_dir)
         .expect_err("closure drift must fail closed");
     assert!(
-        error.to_string().contains("closure receipt does not match reconstructed continuity"),
+        error
+            .to_string()
+            .contains("closure receipt does not match reconstructed continuity"),
         "unexpected error message: {}",
         error
     );
@@ -97,7 +103,8 @@ fn make_prepared_ack_workspace(root: &PathBuf) -> Result<(PathBuf, PathBuf), Box
     let handoff_workspace = root.join("handoff_workspace/current");
     let ack_workspace = root.join("ack_workspace/current");
 
-    let handoff_receipt = build_bounded_consumer_handoff_receipt(&activation_workspace, &consumption_workspace)?;
+    let handoff_receipt =
+        build_bounded_consumer_handoff_receipt(&activation_workspace, &consumption_workspace)?;
     publish_bounded_consumer_handoff(
         &activation_workspace,
         &consumption_workspace,
@@ -139,13 +146,17 @@ fn make_prepared_consumption_workspace(
     let contract_path = consumption_workspace.join("consumer_contract.json");
 
     fs::write(&zip_path, b"slice32 downstream release package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
@@ -230,7 +241,8 @@ fn make_prepared_consumption_workspace(
         promotion_receipt_path: promotion_workspace.join("promotion_receipt.json"),
         rollback_receipt_path: revocation_workspace.join("rollback_receipt.json"),
         repromotion_receipt_path: repromotion_workspace.join("re_promotion_receipt.json"),
-        supersession_chain_receipt_path: supersession_workspace.join("supersession_chain_receipt.json"),
+        supersession_chain_receipt_path: supersession_workspace
+            .join("supersession_chain_receipt.json"),
     };
     let _ = publish_lineage_bundle(&bundle_workspace, &sources)?;
 
@@ -241,12 +253,17 @@ fn make_prepared_consumption_workspace(
     publish_rehydrated_lineage_state(&intake_workspace, &rehydrate_workspace, &rehydrate_receipt)?;
 
     let activation_receipt = build_lineage_activation_receipt(&rehydrate_workspace)?;
-    publish_activated_lineage_state(&rehydrate_workspace, &activation_workspace, &activation_receipt)?;
+    publish_activated_lineage_state(
+        &rehydrate_workspace,
+        &activation_workspace,
+        &activation_receipt,
+    )?;
 
     fs::create_dir_all(&consumption_workspace)?;
     let contract = default_active_lineage_consumer_contract();
     write_active_lineage_consumer_contract(&contract_path, &contract)?;
-    let attestation = build_active_lineage_attestation_receipt(&activation_workspace, &contract_path)?;
+    let attestation =
+        build_active_lineage_attestation_receipt(&activation_workspace, &contract_path)?;
     publish_active_lineage_attestation(&consumption_workspace, &contract, &attestation)?;
 
     Ok((activation_workspace, consumption_workspace))

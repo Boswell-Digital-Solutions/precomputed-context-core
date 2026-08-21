@@ -68,9 +68,10 @@ pub fn load_replay_bundle_manifest(
 ) -> Result<ReplayBundleManifest, ReplayError> {
     validate_nonempty("replay_bundle_id", replay_bundle_id)?;
 
-    let path = root
-        .join("replay_bundles")
-        .join(format!("{}.json", sanitize_file_component(replay_bundle_id)));
+    let path = root.join("replay_bundles").join(format!(
+        "{}.json",
+        sanitize_file_component(replay_bundle_id)
+    ));
 
     if !path.exists() {
         return Err(ReplayError::Validation(format!(
@@ -81,22 +82,24 @@ pub fn load_replay_bundle_manifest(
 
     let bytes = fs::read(&path)?;
     let manifest = serde_json::from_slice::<ReplayBundleManifest>(&bytes)?;
-    manifest
-        .validate()
-        .map_err(ReplayError::Validation)?;
+    manifest.validate().map_err(ReplayError::Validation)?;
 
     Ok(manifest)
 }
 
-pub fn replay_bundle_by_id(root: &Path, replay_bundle_id: &str) -> Result<ReplayReport, ReplayError> {
+pub fn replay_bundle_by_id(
+    root: &Path,
+    replay_bundle_id: &str,
+) -> Result<ReplayReport, ReplayError> {
     let manifest = load_replay_bundle_manifest(root, replay_bundle_id)?;
     replay_bundle(root, &manifest)
 }
 
-pub fn replay_bundle(root: &Path, manifest: &ReplayBundleManifest) -> Result<ReplayReport, ReplayError> {
-    manifest
-        .validate()
-        .map_err(ReplayError::Validation)?;
+pub fn replay_bundle(
+    root: &Path,
+    manifest: &ReplayBundleManifest,
+) -> Result<ReplayReport, ReplayError> {
+    manifest.validate().map_err(ReplayError::Validation)?;
 
     let loaded = load_evidence_bundle(root, manifest)?;
     build_replay_report(manifest, &loaded)
@@ -232,12 +235,12 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use crate::durable_evidence::{
-        ArtifactInvalidationEvidenceRecord, EvidenceAdmissionResult, EvidenceTargetKind,
-        EventReceiptRecord, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
+        ArtifactInvalidationEvidenceRecord, EventReceiptRecord, EvidenceAdmissionResult,
+        EvidenceTargetKind, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
     };
+    use crate::enums::{AdmissibilityState, EventType, FreshnessState};
     use crate::evidence_bundle::build_and_write_replay_bundle;
     use crate::evidence_store::EvidenceStore;
-    use crate::enums::{AdmissibilityState, EventType, FreshnessState};
 
     use super::*;
 
@@ -327,12 +330,10 @@ mod tests {
         let report = replay_bundle(&root, &manifest).expect("replay should still return report");
 
         assert!(!report.replay_ok);
-        assert!(
-            report
-                .mismatches
-                .iter()
-                .any(|entry| entry.contains("proof_digest mismatch"))
-        );
+        assert!(report
+            .mismatches
+            .iter()
+            .any(|entry| entry.contains("proof_digest mismatch")));
 
         cleanup_root(&root);
     }
@@ -398,9 +399,7 @@ mod tests {
             .expect("system time should be after epoch")
             .as_nanos();
 
-        env::temp_dir().join(format!(
-            "precomputed_context_core_{label}_{nanos}"
-        ))
+        env::temp_dir().join(format!("precomputed_context_core_{label}_{nanos}"))
     }
 
     fn cleanup_root(root: &Path) {

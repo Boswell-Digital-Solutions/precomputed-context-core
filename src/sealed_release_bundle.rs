@@ -9,8 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub const SEALED_RELEASE_RECEIPT_SCHEMA_VERSION: &str = "proof.sealed-release-receipt.v1";
-pub const TERMINAL_BOUNDARY_MANIFEST_SCHEMA_VERSION: &str =
-    "proof.terminal-boundary-manifest.v1";
+pub const TERMINAL_BOUNDARY_MANIFEST_SCHEMA_VERSION: &str = "proof.terminal-boundary-manifest.v1";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TerminalBoundaryManifestEntry {
@@ -133,9 +132,9 @@ pub fn build_sealed_release_receipt(
 
     Ok(SealedReleaseReceipt {
         schema_version: SEALED_RELEASE_RECEIPT_SCHEMA_VERSION.to_string(),
-        release_attestation_receipt_sha256: sha256_hex_file(&default_release_attestation_receipt_path(
-            source_dir,
-        ))?,
+        release_attestation_receipt_sha256: sha256_hex_file(
+            &default_release_attestation_receipt_path(source_dir),
+        )?,
         terminal_boundary_manifest_sha256: sha256_hex_bytes(&serde_json::to_vec_pretty(manifest)?),
         sealed_member_count: 6,
         sealed_for_terminal_boundary: true,

@@ -50,13 +50,10 @@ const PACT_BUNDLE_HASH_FIELD: &str = "context_bundle_hash";
 
 /// Vendored, committed copy of pact's `packet_base.schema.json`.
 /// We load from this in-repo mirror, NOT a brittle ../../ path into pact.
-const VENDORED_PACT_PACKET_BASE: &str =
-    include_str!("_vendor/pact_packet_base.schema.json");
+const VENDORED_PACT_PACKET_BASE: &str = include_str!("_vendor/pact_packet_base.schema.json");
 
 fn sample_manifest() -> ContextBundleManifest {
-    use precomputed_context_core::{
-        FreshnessBand, OverrideDecision, ReplayEligibility,
-    };
+    use precomputed_context_core::{FreshnessBand, OverrideDecision, ReplayEligibility};
     ContextBundleManifest {
         context_bundle_id: "cb-001".to_string(),
         bundle_hash: "deadbeefcafef00d".to_string(),
@@ -118,8 +115,7 @@ fn pcc_manifest_carries_context_bundle_id_and_bundle_hash() {
          rename happens AT the boundary, not in PCC"
     );
 
-    let round: ContextBundleManifest =
-        serde_json::from_value(v).expect("manifest round-trips");
+    let round: ContextBundleManifest = serde_json::from_value(v).expect("manifest round-trips");
     assert_eq!(round, manifest);
 }
 
@@ -138,8 +134,7 @@ fn pcc_request_carries_task_intent_id() {
         "PCC request must serialize `task_intent_id`"
     );
 
-    let round: ContextAssemblyRequest =
-        serde_json::from_value(v).expect("request round-trips");
+    let round: ContextAssemblyRequest = serde_json::from_value(v).expect("request round-trips");
     assert_eq!(round, request);
 }
 

@@ -70,7 +70,10 @@ fn valid_assembly_is_deterministic_and_returns_manifest() {
 
     assert_eq!(first.manifest, second.manifest);
     assert_eq!(first.payload_refs, second.payload_refs);
-    assert_eq!(first.manifest.override_decision, OverrideDecision::NoOverridePresent);
+    assert_eq!(
+        first.manifest.override_decision,
+        OverrideDecision::NoOverridePresent
+    );
     assert_eq!(first.manifest.freshness_band, FreshnessBand::Fresh);
     assert!(!first.manifest.authority_conflict_flag);
     assert_eq!(first.payload_refs.len(), 4);
@@ -126,9 +129,12 @@ fn allowed_style_rule_override_path_is_permitted() {
 #[test]
 fn disallowed_source_rejection_is_fail_closed() {
     let mut request = base_request();
-    request.allowed_source_classes.push(SourceClass::ExperimentalFutureSource);
+    request
+        .allowed_source_classes
+        .push(SourceClass::ExperimentalFutureSource);
 
-    let error = assemble_context(&request).expect_err("unsupported source class should fail closed");
+    let error =
+        assemble_context(&request).expect_err("unsupported source class should fail closed");
     assert_eq!(
         error,
         ContextAssemblyError::UnsupportedSourceClass {
@@ -140,9 +146,12 @@ fn disallowed_source_rejection_is_fail_closed() {
 #[test]
 fn missing_required_source_is_rejected_fail_closed() {
     let mut request = base_request();
-    request.sources.retain(|source| source.payload_ref != "scene-summary://chapter-03/scene-06");
+    request
+        .sources
+        .retain(|source| source.payload_ref != "scene-summary://chapter-03/scene-06");
 
-    let error = assemble_context(&request).expect_err("missing adjacent scene summary should fail closed");
+    let error =
+        assemble_context(&request).expect_err("missing adjacent scene summary should fail closed");
     assert_eq!(
         error,
         ContextAssemblyError::MissingRequiredSource {
@@ -156,7 +165,8 @@ fn missing_required_source_is_rejected_fail_closed() {
 fn fixture_bundle_is_present_for_next_slice_authority() {
     let valid_manifest = include_str!("../fixtures/context_assembly/valid_manifest.json");
     let stale_case = include_str!("../fixtures/context_assembly/invalid_stale_context.json");
-    let conflict_case = include_str!("../fixtures/context_assembly/invalid_authority_conflict.json");
+    let conflict_case =
+        include_str!("../fixtures/context_assembly/invalid_authority_conflict.json");
     let valid_request = include_str!("../fixtures/context_assembly/valid_request.json");
 
     assert!(valid_request.contains("\"task_intent_id\""));

@@ -1,6 +1,6 @@
 use precomputed_context_core::{
-    assemble_context, AuthorityState, ContextAssemblyRequest, ContextBundleManifest, FreshnessPolicy,
-    OverridePosture, SourceClass, SourceInput, TargetRefs,
+    assemble_context, AuthorityState, ContextAssemblyRequest, ContextBundleManifest,
+    FreshnessPolicy, OverridePosture, SourceClass, SourceInput, TargetRefs,
 };
 use serde::Serialize;
 use std::error::Error;

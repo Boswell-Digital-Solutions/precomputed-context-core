@@ -65,7 +65,9 @@ fn extra_member_fails_closed() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn make_prepared_lineage_sources(root: &PathBuf) -> Result<LineageBundleSourcePaths, Box<dyn Error>> {
+fn make_prepared_lineage_sources(
+    root: &PathBuf,
+) -> Result<LineageBundleSourcePaths, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");
@@ -83,13 +85,17 @@ fn make_prepared_lineage_sources(root: &PathBuf) -> Result<LineageBundleSourcePa
     let reapproval_path = root.join("operator_reapproval.json");
 
     fs::write(&zip_path, b"slice25 lineage package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
@@ -174,7 +180,8 @@ fn make_prepared_lineage_sources(root: &PathBuf) -> Result<LineageBundleSourcePa
         promotion_receipt_path: promotion_workspace.join("promotion_receipt.json"),
         rollback_receipt_path: revocation_workspace.join("rollback_receipt.json"),
         repromotion_receipt_path: repromotion_workspace.join("re_promotion_receipt.json"),
-        supersession_chain_receipt_path: supersession_workspace.join("supersession_chain_receipt.json"),
+        supersession_chain_receipt_path: supersession_workspace
+            .join("supersession_chain_receipt.json"),
     })
 }
 

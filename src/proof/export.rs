@@ -5,10 +5,10 @@ use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
-use crate::proof::report::GovernedFlowReport;
 use crate::proof::replay_scenario::{
     run_replay_scenario_proof, ReplayScenarioError, ReplayScenarioReport,
 };
+use crate::proof::report::GovernedFlowReport;
 use crate::proof::scenario::run_governed_flow_proof;
 
 const EXPORT_ROOT: &str = "target/proof_artifacts/slice13_export";
@@ -136,10 +136,7 @@ pub fn export_proof_package(repo_root: &Path) -> Result<ProofExportReport, Proof
         &package_root.join(GOVERNED_FLOW_REPORT_FILENAME),
         &governed_export,
     )?;
-    write_json(
-        &package_root.join(REPLAY_REPORT_FILENAME),
-        &replay_export,
-    )?;
+    write_json(&package_root.join(REPLAY_REPORT_FILENAME), &replay_export)?;
 
     let manifest_source = replay_manifest_source_path(&replay_report);
     let manifest_dest = package_root.join(REPLAY_BUNDLE_MANIFEST_FILENAME);
@@ -312,9 +309,7 @@ mod tests {
             .expect("system time should be after epoch")
             .as_nanos();
 
-        env::temp_dir().join(format!(
-            "precomputed_context_core_{label}_{nanos}"
-        ))
+        env::temp_dir().join(format!("precomputed_context_core_{label}_{nanos}"))
     }
 
     fn cleanup_root(root: &Path) {

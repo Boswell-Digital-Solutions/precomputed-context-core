@@ -35,13 +35,25 @@ pub fn build_supersession_chain_receipt(
     repromotion_receipt_path: &Path,
 ) -> Result<SupersessionChainReceipt, Box<dyn Error>> {
     if !promotion_receipt_path.exists() {
-        return Err(format!("promotion receipt missing: {}", promotion_receipt_path.display()).into());
+        return Err(format!(
+            "promotion receipt missing: {}",
+            promotion_receipt_path.display()
+        )
+        .into());
     }
     if !rollback_receipt_path.exists() {
-        return Err(format!("rollback receipt missing: {}", rollback_receipt_path.display()).into());
+        return Err(format!(
+            "rollback receipt missing: {}",
+            rollback_receipt_path.display()
+        )
+        .into());
     }
     if !repromotion_receipt_path.exists() {
-        return Err(format!("re-promotion receipt missing: {}", repromotion_receipt_path.display()).into());
+        return Err(format!(
+            "re-promotion receipt missing: {}",
+            repromotion_receipt_path.display()
+        )
+        .into());
     }
 
     let promotion_receipt = load_promotion_receipt(promotion_receipt_path)?;

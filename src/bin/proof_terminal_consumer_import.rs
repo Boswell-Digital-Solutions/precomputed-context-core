@@ -1,6 +1,5 @@
 use precomputed_context_core::sealed_release_bundle::{
-    default_sealed_release_bundle_dir,
-    default_terminal_boundary_manifest_path,
+    default_sealed_release_bundle_dir, default_terminal_boundary_manifest_path,
 };
 use precomputed_context_core::terminal_consumer_import::{
     build_terminal_consumer_import_receipt, default_terminal_consumer_import_receipt_path,
@@ -52,8 +51,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         fs::remove_file(default_terminal_boundary_manifest_path(&scenario_source))?;
         let output_dir = scenario_root.join("missing_manifest_output");
         reset_dir(&output_dir)?;
-        let result = build_terminal_consumer_import_receipt(&scenario_source)
-            .and_then(|receipt| publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt));
+        let result = build_terminal_consumer_import_receipt(&scenario_source).and_then(|receipt| {
+            publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_terminal_consumer_import_receipt_path(&output_dir).exists(),
@@ -69,8 +69,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         )?;
         let output_dir = scenario_root.join("member_drift_output");
         reset_dir(&output_dir)?;
-        let result = build_terminal_consumer_import_receipt(&scenario_source)
-            .and_then(|receipt| publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt));
+        let result = build_terminal_consumer_import_receipt(&scenario_source).and_then(|receipt| {
+            publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_terminal_consumer_import_receipt_path(&output_dir).exists(),
@@ -86,8 +87,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         fs::write(&manifest_path, serde_json::to_vec_pretty(&value)?)?;
         let output_dir = scenario_root.join("manifest_tamper_output");
         reset_dir(&output_dir)?;
-        let result = build_terminal_consumer_import_receipt(&scenario_source)
-            .and_then(|receipt| publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt));
+        let result = build_terminal_consumer_import_receipt(&scenario_source).and_then(|receipt| {
+            publish_terminal_consumer_import(&scenario_source, &output_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_terminal_consumer_import_receipt_path(&output_dir).exists(),
@@ -110,8 +112,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         capstone_ready: true,
     };
 
-    let report_path =
-        PathBuf::from("target/proof_artifacts/slice36_terminal_consumer/program_capstone_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice36_terminal_consumer/program_capstone_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

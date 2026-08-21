@@ -1,6 +1,6 @@
 use crate::trust_envelope::{
-    default_proof_signer, sha256_hex_file, TRUST_ENVELOPE_IMPORT_SCOPE,
-    TRUST_ENVELOPE_POLICY_ID, TRUST_ENVELOPE_REPO_ID,
+    default_proof_signer, sha256_hex_file, TRUST_ENVELOPE_IMPORT_SCOPE, TRUST_ENVELOPE_POLICY_ID,
+    TRUST_ENVELOPE_REPO_ID,
 };
 use serde::{Deserialize, Serialize};
 use std::error::Error;

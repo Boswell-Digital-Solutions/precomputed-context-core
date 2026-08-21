@@ -36,17 +36,22 @@ fn policy_without_allowed_signer_fails_closed() -> Result<(), Box<dyn Error>> {
     let policy_path = root.join("policy_without_signer.json");
 
     fs::write(&zip_path, b"slice19 package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let mut policy = default_import_authorization_policy();
     policy.signer_rules.clear();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let error = authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)
-        .expect_err("policy without signer must fail closed");
+    let error =
+        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)
+            .expect_err("policy without signer must fail closed");
     assert!(error.to_string().contains("not authorized"));
     Ok(())
 }
@@ -73,7 +78,10 @@ fn evidence_link_binds_policy_envelope_and_receipt() -> Result<(), Box<dyn Error
 
     assert!(evidence.import_receipt_present);
     assert_eq!(evidence.policy_file_name, "policy.json");
-    assert_eq!(evidence.authorization_receipt_file_name, "authorization_receipt.json");
+    assert_eq!(
+        evidence.authorization_receipt_file_name,
+        "authorization_receipt.json"
+    );
     Ok(())
 }
 

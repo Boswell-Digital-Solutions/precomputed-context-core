@@ -11,10 +11,8 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const RELEASE_READINESS_RECEIPT_SCHEMA_VERSION: &str =
-    "proof.release-readiness-receipt.v1";
-pub const OPERATOR_RELEASE_SUMMARY_SCHEMA_VERSION: &str =
-    "proof.operator-release-summary.v1";
+pub const RELEASE_READINESS_RECEIPT_SCHEMA_VERSION: &str = "proof.release-readiness-receipt.v1";
+pub const OPERATOR_RELEASE_SUMMARY_SCHEMA_VERSION: &str = "proof.operator-release-summary.v1";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ReleaseReadinessReceipt {
@@ -56,7 +54,8 @@ pub fn build_release_readiness_receipt(
 ) -> Result<ReleaseReadinessReceipt, Box<dyn Error>> {
     let release_receipt_path =
         default_downstream_release_receipt_path(downstream_release_workspace_current_dir);
-    let release_package_dir = default_downstream_release_package_dir(downstream_release_workspace_current_dir);
+    let release_package_dir =
+        default_downstream_release_package_dir(downstream_release_workspace_current_dir);
     validate_downstream_release_package(&release_package_dir, 6)?;
 
     let release_receipt = load_downstream_release_receipt(&release_receipt_path)?;
@@ -64,13 +63,16 @@ pub fn build_release_readiness_receipt(
         return Err("downstream release receipt was not eligible".into());
     }
 
-    let acknowledgment_receipt_path = release_package_dir.join("consumer_acknowledgment_receipt.json");
+    let acknowledgment_receipt_path =
+        release_package_dir.join("consumer_acknowledgment_receipt.json");
     let closure_receipt_path = release_package_dir.join("return_channel_closure_receipt.json");
     let acknowledgment = load_consumer_acknowledgment_receipt(&acknowledgment_receipt_path)?;
     let closure = load_return_channel_closure_receipt(&closure_receipt_path)?;
 
     if !acknowledgment.acknowledged {
-        return Err("consumer acknowledgment in release package did not acknowledge handoff".into());
+        return Err(
+            "consumer acknowledgment in release package did not acknowledge handoff".into(),
+        );
     }
     if !closure.closed {
         return Err("return channel closure in release package was not closed".into());
@@ -98,9 +100,11 @@ pub fn build_release_readiness_receipt(
 pub fn build_operator_release_summary(
     downstream_release_workspace_current_dir: &Path,
 ) -> Result<OperatorReleaseSummary, Box<dyn Error>> {
-    let release_package_dir = default_downstream_release_package_dir(downstream_release_workspace_current_dir);
-    let acknowledgment =
-        load_consumer_acknowledgment_receipt(&release_package_dir.join("consumer_acknowledgment_receipt.json"))?;
+    let release_package_dir =
+        default_downstream_release_package_dir(downstream_release_workspace_current_dir);
+    let acknowledgment = load_consumer_acknowledgment_receipt(
+        &release_package_dir.join("consumer_acknowledgment_receipt.json"),
+    )?;
 
     Ok(OperatorReleaseSummary {
         schema_version: OPERATOR_RELEASE_SUMMARY_SCHEMA_VERSION.to_string(),

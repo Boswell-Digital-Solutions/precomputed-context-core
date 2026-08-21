@@ -7,9 +7,8 @@ use precomputed_context_core::import_authorization::{
     write_authorization_receipt,
 };
 use precomputed_context_core::import_policy::{
-    default_import_authorization_policy,
-    load_import_authorization_policy, write_default_import_authorization_policy,
-    write_import_authorization_policy,
+    default_import_authorization_policy, load_import_authorization_policy,
+    write_default_import_authorization_policy, write_import_authorization_policy,
 };
 use precomputed_context_core::trust_envelope::{
     build_signed_trust_envelope_for_zip, default_proof_signer, default_sha256_sidecar_path,
@@ -44,7 +43,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let envelope_path = default_trust_envelope_path(&zip_path);
     if !envelope_path.exists() {
         let sha_path = default_sha256_sidecar_path(&zip_path);
-        let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+        let envelope =
+            build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
         write_signed_trust_envelope(&envelope_path, &envelope)?;
     }
 
@@ -55,11 +55,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     fs::create_dir_all(&workspace_current)?;
     let receipt_path = default_authorization_receipt_path(&workspace_current);
 
-    let receipt = authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
+    let receipt =
+        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
     write_authorization_receipt(&receipt_path, &receipt)?;
     let receipt_sha256 = sha256_file(&receipt_path)?;
 
-    let receipt_repeat = authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
+    let receipt_repeat =
+        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
     write_authorization_receipt(&receipt_path, &receipt_repeat)?;
     let repeated_receipt_sha256 = sha256_file(&receipt_path)?;
 
@@ -89,7 +91,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         policy.signer_rules.clear();
         let policy_without_signer_path = scenario_root.join("policy_without_signer.json");
         write_import_authorization_policy(&policy_without_signer_path, &policy)?;
-        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_without_signer_path).is_err()
+        authorize_zip_import_from_policy_file(
+            &zip_path,
+            Some(&envelope_path),
+            &policy_without_signer_path,
+        )
+        .is_err()
     };
 
     let policy_scope_mismatch_rejected = {
@@ -97,7 +104,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         policy.required_import_scope = "wrong_scope".to_string();
         let scope_mismatch_path = scenario_root.join("policy_scope_mismatch.json");
         write_import_authorization_policy(&scope_mismatch_path, &policy)?;
-        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &scope_mismatch_path).is_err()
+        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &scope_mismatch_path)
+            .is_err()
     };
 
     let invalid_signature_rejected = {
@@ -105,7 +113,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         envelope.signature = "0".repeat(64);
         let invalid_signature_path = scenario_root.join("invalid_signature.trust_envelope.json");
         write_signed_trust_envelope(&invalid_signature_path, &envelope)?;
-        authorize_zip_import_from_policy_file(&zip_path, Some(&invalid_signature_path), &policy_path).is_err()
+        authorize_zip_import_from_policy_file(
+            &zip_path,
+            Some(&invalid_signature_path),
+            &policy_path,
+        )
+        .is_err()
     };
 
     let report = AuthorizationReport {
@@ -125,7 +138,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         invalid_signature_rejected,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice19_policy/authorization_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice19_policy/authorization_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

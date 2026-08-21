@@ -1,6 +1,4 @@
-use precomputed_context_core::consumer_acknowledgment::{
-    default_return_channel_closure_receipt_path,
-};
+use precomputed_context_core::consumer_acknowledgment::default_return_channel_closure_receipt_path;
 use precomputed_context_core::consumer_handoff::default_bounded_consumer_handoff_package_dir;
 use precomputed_context_core::downstream_release::{
     build_downstream_release_receipt, default_downstream_release_ack_source_dir,
@@ -42,20 +40,27 @@ fn main() -> Result<(), Box<dyn Error>> {
     let release_receipt_sha256 = sha256_file(&release_receipt_path)?;
 
     let repeated_receipt = build_downstream_release_receipt(&handoff_source, &ack_source)?;
-    publish_downstream_release_package(&handoff_source, &ack_source, &workspace_current, &repeated_receipt)?;
+    publish_downstream_release_package(
+        &handoff_source,
+        &ack_source,
+        &workspace_current,
+        &repeated_receipt,
+    )?;
     let repeated_release_receipt_sha256 = sha256_file(&release_receipt_path)?;
 
-    let bounded_release_member_set_enforced = sorted_relative_files(&default_downstream_release_package_dir(&workspace_current))?
-        == vec![
-            "activation_receipt.json".to_string(),
-            "attestation_receipt.json".to_string(),
-            "consumer_acknowledgment_receipt.json".to_string(),
-            "consumer_contract.json".to_string(),
-            "return_channel_closure_receipt.json".to_string(),
-            "supersession_chain_receipt.json".to_string(),
-        ];
+    let bounded_release_member_set_enforced =
+        sorted_relative_files(&default_downstream_release_package_dir(&workspace_current))?
+            == vec![
+                "activation_receipt.json".to_string(),
+                "attestation_receipt.json".to_string(),
+                "consumer_acknowledgment_receipt.json".to_string(),
+                "consumer_contract.json".to_string(),
+                "return_channel_closure_receipt.json".to_string(),
+                "supersession_chain_receipt.json".to_string(),
+            ];
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice32_downstream_release/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice32_downstream_release/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_closure_receipt_rejected, no_release_publication_on_missing_closure_receipt) = {
@@ -64,9 +69,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         fs::remove_file(default_return_channel_closure_receipt_path(&scenario_ack))?;
         let scenario_output = scenario_root.join("missing_closure_output");
         reset_dir(&scenario_output)?;
-        let result = build_downstream_release_receipt(&handoff_source, &scenario_ack)
-            .and_then(|receipt| {
-                publish_downstream_release_package(&handoff_source, &scenario_ack, &scenario_output, &receipt)
+        let result =
+            build_downstream_release_receipt(&handoff_source, &scenario_ack).and_then(|receipt| {
+                publish_downstream_release_package(
+                    &handoff_source,
+                    &scenario_ack,
+                    &scenario_output,
+                    &receipt,
+                )
             });
         (
             result.is_err(),
@@ -83,9 +93,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         fs::write(&closure_path, serde_json::to_vec_pretty(&value)?)?;
         let scenario_output = scenario_root.join("closure_drift_output");
         reset_dir(&scenario_output)?;
-        let result = build_downstream_release_receipt(&handoff_source, &scenario_ack)
-            .and_then(|receipt| {
-                publish_downstream_release_package(&handoff_source, &scenario_ack, &scenario_output, &receipt)
+        let result =
+            build_downstream_release_receipt(&handoff_source, &scenario_ack).and_then(|receipt| {
+                publish_downstream_release_package(
+                    &handoff_source,
+                    &scenario_ack,
+                    &scenario_output,
+                    &receipt,
+                )
             });
         (
             result.is_err(),
@@ -102,9 +117,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         )?;
         let scenario_output = scenario_root.join("package_drift_output");
         reset_dir(&scenario_output)?;
-        let result = build_downstream_release_receipt(&scenario_handoff, &ack_source)
-            .and_then(|receipt| {
-                publish_downstream_release_package(&scenario_handoff, &ack_source, &scenario_output, &receipt)
+        let result =
+            build_downstream_release_receipt(&scenario_handoff, &ack_source).and_then(|receipt| {
+                publish_downstream_release_package(
+                    &scenario_handoff,
+                    &ack_source,
+                    &scenario_output,
+                    &receipt,
+                )
             });
         (
             result.is_err(),
@@ -126,7 +146,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_release_publication_on_package_member_drift,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice32_downstream_release/downstream_release_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice32_downstream_release/downstream_release_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

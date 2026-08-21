@@ -60,12 +60,18 @@ pub fn build_bounded_consumer_handoff_receipt(
     validate_active_lineage_consumer_contract(&contract)?;
 
     if !attestation_path.exists() {
-        return Err(format!("attestation receipt missing: {}", attestation_path.display()).into());
+        return Err(format!(
+            "attestation receipt missing: {}",
+            attestation_path.display()
+        )
+        .into());
     }
     if !activation_receipt_path.exists() {
-        return Err(
-            format!("activation receipt missing: {}", activation_receipt_path.display()).into(),
-        );
+        return Err(format!(
+            "activation receipt missing: {}",
+            activation_receipt_path.display()
+        )
+        .into());
     }
 
     let activation_receipt = load_lineage_activation_receipt(&activation_receipt_path)?;
@@ -78,8 +84,10 @@ pub fn build_bounded_consumer_handoff_receipt(
         return Err("attestation receipt was not attested".into());
     }
 
-    let expected_attestation =
-        build_active_lineage_attestation_receipt(active_lineage_workspace_current_dir, &contract_path)?;
+    let expected_attestation = build_active_lineage_attestation_receipt(
+        active_lineage_workspace_current_dir,
+        &contract_path,
+    )?;
     if stored_attestation != expected_attestation {
         return Err("stored attestation receipt does not match readiness reconstruction".into());
     }

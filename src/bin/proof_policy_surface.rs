@@ -31,7 +31,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         stable_repeated_policy: first_hash == second_hash,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice19_policy/policy_surface_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice19_policy/policy_surface_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

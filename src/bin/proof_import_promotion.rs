@@ -86,7 +86,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let scenario_dir = scenario_root.join("gate_hash_mismatch");
         fs::create_dir_all(&scenario_dir)?;
         let bad_approval_path = scenario_dir.join("operator_approval.json");
-        let mut bad_approval = build_promotion_approval(&gate_receipt_path, &gated_import_receipt_path)?;
+        let mut bad_approval =
+            build_promotion_approval(&gate_receipt_path, &gated_import_receipt_path)?;
         bad_approval.gate_receipt_sha256 = "0".repeat(64);
         write_promotion_approval(&bad_approval_path, &bad_approval)?;
         let result = validate_promotion_approval(
@@ -121,7 +122,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         promoted_import_receipt_file_name: file_name_string(&promoted_import_receipt_path)?,
         promoted_import_receipt_sha256,
         repeated_promotion_receipt_sha256: repeated_promotion_receipt_sha256.clone(),
-        stable_repeated_promotion_receipt: promotion_receipt_sha256 == repeated_promotion_receipt_sha256,
+        stable_repeated_promotion_receipt: promotion_receipt_sha256
+            == repeated_promotion_receipt_sha256,
         missing_approval_rejected,
         gate_hash_mismatch_rejected,
         missing_gated_import_receipt_rejected,
@@ -130,7 +132,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_missing_gated_import_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice21_promotion/promotion_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice21_promotion/promotion_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

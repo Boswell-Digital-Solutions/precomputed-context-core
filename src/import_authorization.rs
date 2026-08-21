@@ -1,7 +1,7 @@
 use crate::import_policy::{
     default_import_authorization_policy as default_import_authorization_policy_record,
-    hash_import_authorization_policy_file, load_import_authorization_policy,
-    signer_is_authorized, ImportAuthorizationPolicy,
+    hash_import_authorization_policy_file, load_import_authorization_policy, signer_is_authorized,
+    ImportAuthorizationPolicy,
 };
 use crate::trust_envelope::{
     default_trust_envelope_path, load_signed_trust_envelope, sha256_hex_file,

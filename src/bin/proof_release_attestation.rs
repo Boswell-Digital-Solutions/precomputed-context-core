@@ -1,9 +1,8 @@
 use precomputed_context_core::release_attestation::{
-    build_release_attestation_receipt,
-    default_release_attestation_downstream_source_dir,
-    default_release_attestation_readiness_source_dir,
-    default_release_attestation_receipt_path, default_release_attestation_workspace_current,
-    load_release_attestation_receipt, publish_release_attestation_package,
+    build_release_attestation_receipt, default_release_attestation_downstream_source_dir,
+    default_release_attestation_readiness_source_dir, default_release_attestation_receipt_path,
+    default_release_attestation_workspace_current, load_release_attestation_receipt,
+    publish_release_attestation_package,
 };
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -42,7 +41,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let receipt_path = default_release_attestation_receipt_path(&workspace_current);
     let attestation_receipt_sha256 = sha256_file(&receipt_path)?;
 
-    let repeated_receipt = build_release_attestation_receipt(&downstream_source, &readiness_source)?;
+    let repeated_receipt =
+        build_release_attestation_receipt(&downstream_source, &readiness_source)?;
     publish_release_attestation_package(
         &downstream_source,
         &readiness_source,
@@ -51,7 +51,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
     let repeated_attestation_receipt_sha256 = sha256_file(&receipt_path)?;
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice34_release_attestation/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice34_release_attestation/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_operator_summary_rejected, no_publication_on_missing_operator_summary) = {
@@ -82,8 +83,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         let readiness_scenario = scenario_root.join("continuity_tamper_readiness");
         copy_dir(&readiness_source, &readiness_scenario)?;
         let readiness_receipt_path = readiness_scenario.join("release_readiness_receipt.json");
-        let mut value: serde_json::Value = serde_json::from_slice(&fs::read(&readiness_receipt_path)?)?;
-        value["downstream_release_receipt_sha256"] = serde_json::Value::String("tampered".to_string());
+        let mut value: serde_json::Value =
+            serde_json::from_slice(&fs::read(&readiness_receipt_path)?)?;
+        value["downstream_release_receipt_sha256"] =
+            serde_json::Value::String("tampered".to_string());
         fs::write(&readiness_receipt_path, serde_json::to_vec_pretty(&value)?)?;
         let output_dir = scenario_root.join("continuity_tamper_output");
         reset_dir(&output_dir)?;
@@ -141,8 +144,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_missing_closure_receipt,
     };
 
-    let report_path =
-        PathBuf::from("target/proof_artifacts/slice34_release_attestation/release_attestation_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice34_release_attestation/release_attestation_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

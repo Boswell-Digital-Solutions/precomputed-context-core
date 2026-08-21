@@ -77,7 +77,8 @@ fn contract_without_admitted_requirement_fails_closed() -> Result<(), Box<dyn Er
         .expect_err("contract without admitted lineage requirement must fail closed");
     let message = error.to_string();
     assert!(
-        message.contains("require admitted lineage") || message.contains("must require admitted lineage"),
+        message.contains("require admitted lineage")
+            || message.contains("must require admitted lineage"),
         "unexpected error message: {message}"
     );
     Ok(())
@@ -105,13 +106,17 @@ fn make_prepared_activation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn
     let reapproval_path = root.join("operator_reapproval.json");
 
     fs::write(&zip_path, b"slice29 lineage package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
@@ -196,7 +201,8 @@ fn make_prepared_activation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn
         promotion_receipt_path: promotion_workspace.join("promotion_receipt.json"),
         rollback_receipt_path: revocation_workspace.join("rollback_receipt.json"),
         repromotion_receipt_path: repromotion_workspace.join("re_promotion_receipt.json"),
-        supersession_chain_receipt_path: supersession_workspace.join("supersession_chain_receipt.json"),
+        supersession_chain_receipt_path: supersession_workspace
+            .join("supersession_chain_receipt.json"),
     };
     let _ = publish_lineage_bundle(&bundle_workspace, &sources)?;
 
@@ -207,7 +213,11 @@ fn make_prepared_activation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn
     publish_rehydrated_lineage_state(&intake_workspace, &rehydrate_workspace, &rehydrate_receipt)?;
 
     let activation_receipt = build_lineage_activation_receipt(&rehydrate_workspace)?;
-    publish_activated_lineage_state(&rehydrate_workspace, &activation_workspace, &activation_receipt)?;
+    publish_activated_lineage_state(
+        &rehydrate_workspace,
+        &activation_workspace,
+        &activation_receipt,
+    )?;
     Ok(activation_workspace)
 }
 

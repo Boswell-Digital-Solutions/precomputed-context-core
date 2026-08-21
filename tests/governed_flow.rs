@@ -13,8 +13,7 @@ use precomputed_context_core::fixture_support::{
 
 #[cfg(not(feature = "test-support"))]
 use precomputed_context_core::proof::{
-    authority_record_changed_event_for_test as authority_record_changed_event,
-    source_deleted_event,
+    authority_record_changed_event_for_test as authority_record_changed_event, source_deleted_event,
 };
 
 use precomputed_context_core::{

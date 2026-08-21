@@ -1,6 +1,6 @@
 use precomputed_context_core::{
-    assemble_context, AuthorityState, ContextAssemblyError, ContextAssemblyRequest, FreshnessPolicy,
-    OverridePosture, SourceClass, SourceInput, TargetRefs,
+    assemble_context, AuthorityState, ContextAssemblyError, ContextAssemblyRequest,
+    FreshnessPolicy, OverridePosture, SourceClass, SourceInput, TargetRefs,
 };
 
 /// Continuity context-assembly profile request builder.

@@ -53,7 +53,9 @@ fn valid_lineage_activation_builds_and_publishes() -> Result<(), Box<dyn Error>>
     publish_activated_lineage_state(&rehydrate_dir, &activation_dir, &receipt)?;
 
     assert!(activation_dir.join("activation_receipt.json").exists());
-    assert!(activation_dir.join("active_lineage/supersession_chain_receipt.json").exists());
+    assert!(activation_dir
+        .join("active_lineage/supersession_chain_receipt.json")
+        .exists());
     Ok(())
 }
 
@@ -96,13 +98,17 @@ fn make_prepared_rehydrate_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn 
     let reapproval_path = root.join("operator_reapproval.json");
 
     fs::write(&zip_path, b"slice28 lineage package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
@@ -187,7 +193,8 @@ fn make_prepared_rehydrate_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn 
         promotion_receipt_path: promotion_workspace.join("promotion_receipt.json"),
         rollback_receipt_path: revocation_workspace.join("rollback_receipt.json"),
         repromotion_receipt_path: repromotion_workspace.join("re_promotion_receipt.json"),
-        supersession_chain_receipt_path: supersession_workspace.join("supersession_chain_receipt.json"),
+        supersession_chain_receipt_path: supersession_workspace
+            .join("supersession_chain_receipt.json"),
     };
     let _ = publish_lineage_bundle(&bundle_workspace, &sources)?;
 

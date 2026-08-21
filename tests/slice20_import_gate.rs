@@ -41,7 +41,8 @@ fn evidence_hash_mismatch_fails_closed() -> Result<(), Box<dyn Error>> {
     let bundle = make_valid_bundle(&root)?;
 
     let bad_evidence_path = root.join("bad_authorization_evidence_link.json");
-    let mut value: serde_json::Value = serde_json::from_slice(&fs::read(&bundle.evidence_link_path)?)?;
+    let mut value: serde_json::Value =
+        serde_json::from_slice(&fs::read(&bundle.evidence_link_path)?)?;
     value["import_receipt_sha256"] = serde_json::Value::String("0".repeat(64));
     fs::write(&bad_evidence_path, serde_json::to_vec_pretty(&value)?)?;
 
@@ -79,16 +80,21 @@ fn make_valid_bundle(root: &PathBuf) -> Result<ValidBundlePaths, Box<dyn Error>>
     let import_receipt_path = root.join("import_receipt.json");
 
     fs::write(&zip_path, b"slice20 gated package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
-    let receipt = authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
+    let receipt =
+        authorize_zip_import_from_policy_file(&zip_path, Some(&envelope_path), &policy_path)?;
     write_authorization_receipt(&authorization_receipt_path, &receipt)?;
 
     let evidence = build_authorization_evidence_link(

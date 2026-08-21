@@ -38,14 +38,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let receipt = build_active_lineage_attestation_receipt(&source_dir, &contract_path)?;
     publish_active_lineage_attestation(&workspace_current, &contract, &receipt)?;
 
-    let attestation_receipt_path = default_active_lineage_attestation_receipt_path(&workspace_current);
+    let attestation_receipt_path =
+        default_active_lineage_attestation_receipt_path(&workspace_current);
     let attestation_receipt_sha256 = sha256_file(&attestation_receipt_path)?;
 
     let repeated_receipt = build_active_lineage_attestation_receipt(&source_dir, &contract_path)?;
     publish_active_lineage_attestation(&workspace_current, &contract, &repeated_receipt)?;
     let repeated_attestation_receipt_sha256 = sha256_file(&attestation_receipt_path)?;
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice29_lineage_consumption/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice29_lineage_consumption/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_activation_receipt_rejected, no_receipt_publication_on_missing_activation_receipt) = {
@@ -55,10 +57,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let scenario_output_dir = scenario_root.join("missing_activation_receipt_output");
         reset_dir(&scenario_output_dir)?;
-        let scenario_contract_path = default_active_lineage_consumer_contract_path(&scenario_output_dir);
+        let scenario_contract_path =
+            default_active_lineage_consumer_contract_path(&scenario_output_dir);
         write_active_lineage_consumer_contract(&scenario_contract_path, &contract)?;
-        let result = build_active_lineage_attestation_receipt(&scenario_source_dir, &scenario_contract_path)
-            .and_then(|receipt| publish_active_lineage_attestation(&scenario_output_dir, &contract, &receipt));
+        let result =
+            build_active_lineage_attestation_receipt(&scenario_source_dir, &scenario_contract_path)
+                .and_then(|receipt| {
+                    publish_active_lineage_attestation(&scenario_output_dir, &contract, &receipt)
+                });
         (
             result.is_err(),
             !default_active_lineage_attestation_receipt_path(&scenario_output_dir).exists(),
@@ -69,15 +75,21 @@ fn main() -> Result<(), Box<dyn Error>> {
         contract_without_admitted_requirement_rejected,
         no_receipt_publication_on_contract_without_admitted_requirement,
     ) = {
-        let scenario_output_dir = scenario_root.join("contract_without_admitted_requirement_output");
+        let scenario_output_dir =
+            scenario_root.join("contract_without_admitted_requirement_output");
         reset_dir(&scenario_output_dir)?;
         let mut invalid_contract = default_active_lineage_consumer_contract();
         invalid_contract.requires_admitted_lineage = false;
-        let scenario_contract_path = default_active_lineage_consumer_contract_path(&scenario_output_dir);
+        let scenario_contract_path =
+            default_active_lineage_consumer_contract_path(&scenario_output_dir);
         write_active_lineage_consumer_contract(&scenario_contract_path, &invalid_contract)?;
         let result = build_active_lineage_attestation_receipt(&source_dir, &scenario_contract_path)
             .and_then(|receipt| {
-                publish_active_lineage_attestation(&scenario_output_dir, &invalid_contract, &receipt)
+                publish_active_lineage_attestation(
+                    &scenario_output_dir,
+                    &invalid_contract,
+                    &receipt,
+                )
             });
         (
             result.is_err(),
@@ -95,10 +107,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let scenario_output_dir = scenario_root.join("corrupted_supersession_output");
         reset_dir(&scenario_output_dir)?;
-        let scenario_contract_path = default_active_lineage_consumer_contract_path(&scenario_output_dir);
+        let scenario_contract_path =
+            default_active_lineage_consumer_contract_path(&scenario_output_dir);
         write_active_lineage_consumer_contract(&scenario_contract_path, &contract)?;
-        let result = build_active_lineage_attestation_receipt(&scenario_source_dir, &scenario_contract_path)
-            .and_then(|receipt| publish_active_lineage_attestation(&scenario_output_dir, &contract, &receipt));
+        let result =
+            build_active_lineage_attestation_receipt(&scenario_source_dir, &scenario_contract_path)
+                .and_then(|receipt| {
+                    publish_active_lineage_attestation(&scenario_output_dir, &contract, &receipt)
+                });
         (
             result.is_err(),
             !default_active_lineage_attestation_receipt_path(&scenario_output_dir).exists(),
@@ -110,7 +126,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         attestation_receipt_file_name: file_name_string(&attestation_receipt_path)?,
         attestation_receipt_sha256: attestation_receipt_sha256.clone(),
         repeated_attestation_receipt_sha256: repeated_attestation_receipt_sha256.clone(),
-        stable_repeated_attestation_receipt: attestation_receipt_sha256 == repeated_attestation_receipt_sha256,
+        stable_repeated_attestation_receipt: attestation_receipt_sha256
+            == repeated_attestation_receipt_sha256,
         missing_activation_receipt_rejected,
         contract_without_admitted_requirement_rejected,
         corrupted_supersession_rejected,
@@ -119,7 +136,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_receipt_publication_on_corrupted_supersession,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice29_lineage_consumption/lineage_attestation_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice29_lineage_consumption/lineage_attestation_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

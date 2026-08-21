@@ -1,6 +1,6 @@
 pub mod authority;
-pub mod contracts;
 pub mod context_assembly;
+pub mod contracts;
 pub mod durable_evidence;
 pub mod enums;
 pub mod events;
@@ -20,20 +20,19 @@ pub mod schema_validation;
 pub mod state_machine;
 
 pub use authority::AuthorityResolutionRecord;
+pub use context_assembly::{
+    assemble_context, AuthorityState, ClassFreshnessOverride, ContextAssemblyError,
+    ContextAssemblyOutput, ContextAssemblyRequest, ContextBundleManifest, FreshnessBand,
+    FreshnessPolicy, OverrideDecision, OverridePosture, ReplayEligibility, SourceClass,
+    SourceInput, SourceInventoryEntry, SourceProvenance, TargetRefs,
+};
 pub use contracts::{
     KeyFilePacketContract, RepoNavigationAssistPacketContract, RepoNavigationMapContract,
     ValidationCommandPacketContract,
 };
-pub use context_assembly::{
-    assemble_context, AuthorityState, ClassFreshnessOverride, ContextAssemblyError,
-    ContextAssemblyOutput,
-    ContextAssemblyRequest, ContextBundleManifest, FreshnessBand, FreshnessPolicy,
-    OverrideDecision, OverridePosture, ReplayEligibility, SourceClass, SourceInput,
-    SourceInventoryEntry, SourceProvenance, TargetRefs,
-};
 pub use durable_evidence::{
-    ArtifactInvalidationEvidenceRecord, CoalescedBatchRecord, EvidenceAdmissionResult,
-    EvidenceBatchOutcome, EvidenceTargetKind, EventReceiptRecord,
+    ArtifactInvalidationEvidenceRecord, CoalescedBatchRecord, EventReceiptRecord,
+    EvidenceAdmissionResult, EvidenceBatchOutcome, EvidenceTargetKind,
     PacketReevaluationEvidenceRecord, RemediationEvidenceRecord, ReplayBundleManifest,
 };
 pub use enums::*;
@@ -65,25 +64,25 @@ pub use state_machine::{
     compute_default_artifact_admissibility, compute_default_packet_admissibility,
     validate_artifact_state, validate_packet_state,
 };
-pub mod import_contract;
-pub mod trust_envelope;
-pub mod import_authorization;
-pub mod import_policy;
 pub mod authorization_evidence;
+pub mod consumer_acknowledgment;
+pub mod consumer_handoff;
+pub mod downstream_release;
+pub mod import_authorization;
+pub mod import_contract;
 pub mod import_gate;
-pub mod promotion_gate;
-pub mod promotion_revocation;
-pub mod re_promotion;
-pub mod supersession_chain;
+pub mod import_policy;
+pub mod lineage_activation;
 pub mod lineage_bundle;
 pub mod lineage_bundle_intake;
 pub mod lineage_bundle_rehydrate;
-pub mod lineage_activation;
 pub mod lineage_consumption;
-pub mod consumer_handoff;
-pub mod consumer_acknowledgment;
-pub mod downstream_release;
-pub mod release_readiness;
+pub mod promotion_gate;
+pub mod promotion_revocation;
+pub mod re_promotion;
 pub mod release_attestation;
+pub mod release_readiness;
 pub mod sealed_release_bundle;
+pub mod supersession_chain;
 pub mod terminal_consumer_import;
+pub mod trust_envelope;

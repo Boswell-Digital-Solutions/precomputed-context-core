@@ -12,8 +12,7 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const DOWNSTREAM_RELEASE_RECEIPT_SCHEMA_VERSION: &str =
-    "proof.downstream-release-receipt.v1";
+pub const DOWNSTREAM_RELEASE_RECEIPT_SCHEMA_VERSION: &str = "proof.downstream-release-receipt.v1";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DownstreamReleaseReceipt {
@@ -49,7 +48,8 @@ pub fn build_downstream_release_receipt(
     handoff_workspace_current_dir: &Path,
     acknowledgment_workspace_current_dir: &Path,
 ) -> Result<DownstreamReleaseReceipt, Box<dyn Error>> {
-    let handoff_receipt_path = default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
+    let handoff_receipt_path =
+        default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
     let package_dir = default_bounded_consumer_handoff_package_dir(handoff_workspace_current_dir);
     let acknowledgment_receipt_path =
         default_consumer_acknowledgment_receipt_path(acknowledgment_workspace_current_dir);
@@ -57,7 +57,11 @@ pub fn build_downstream_release_receipt(
         default_return_channel_closure_receipt_path(acknowledgment_workspace_current_dir);
 
     if !closure_receipt_path.exists() {
-        return Err(format!("closure receipt missing: {}", closure_receipt_path.display()).into());
+        return Err(format!(
+            "closure receipt missing: {}",
+            closure_receipt_path.display()
+        )
+        .into());
     }
 
     validate_bounded_handoff_package(&package_dir, 4)?;
@@ -68,8 +72,10 @@ pub fn build_downstream_release_receipt(
     }
 
     let closure = load_return_channel_closure_receipt(&closure_receipt_path)?;
-    let expected_closure =
-        build_return_channel_closure_receipt(handoff_workspace_current_dir, acknowledgment_workspace_current_dir)?;
+    let expected_closure = build_return_channel_closure_receipt(
+        handoff_workspace_current_dir,
+        acknowledgment_workspace_current_dir,
+    )?;
     if closure != expected_closure {
         return Err("closure receipt does not match reconstructed continuity".into());
     }
@@ -97,14 +103,18 @@ pub fn publish_downstream_release_package(
     let package_dir = default_downstream_release_package_dir(workspace_current_dir);
     fs::create_dir_all(&package_dir)?;
 
-    let handoff_package_dir = default_bounded_consumer_handoff_package_dir(handoff_workspace_current_dir);
+    let handoff_package_dir =
+        default_bounded_consumer_handoff_package_dir(handoff_workspace_current_dir);
     for file_name in [
         "activation_receipt.json",
         "attestation_receipt.json",
         "consumer_contract.json",
         "supersession_chain_receipt.json",
     ] {
-        fs::copy(handoff_package_dir.join(file_name), package_dir.join(file_name))?;
+        fs::copy(
+            handoff_package_dir.join(file_name),
+            package_dir.join(file_name),
+        )?;
     }
     fs::copy(
         default_consumer_acknowledgment_receipt_path(acknowledgment_workspace_current_dir),

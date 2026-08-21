@@ -90,8 +90,12 @@ pub fn run_governed_flow_proof(_root: &Path) -> GovernedFlowReport {
     });
 
     let batches = ledger.coalesce_pending();
-    let coalescing_ok =
-        batches.len() == 2 && batches.iter().map(|batch| batch.events.len()).sum::<usize>() == 2;
+    let coalescing_ok = batches.len() == 2
+        && batches
+            .iter()
+            .map(|batch| batch.events.len())
+            .sum::<usize>()
+            == 2;
 
     steps.push(if coalescing_ok {
         GovernedFlowStep::pass(
@@ -133,8 +137,7 @@ pub fn run_governed_flow_proof(_root: &Path) -> GovernedFlowReport {
         )
     });
 
-    let authority_outcome =
-        apply_artifact_invalidation(&authority_event, &source_outcome.artifact);
+    let authority_outcome = apply_artifact_invalidation(&authority_event, &source_outcome.artifact);
     let authority_invalidation_ok = authority_outcome.overlapped
         && authority_outcome.decision == ArtifactInvalidationDecision::Invalidated
         && authority_outcome.artifact.freshness_state == FreshnessState::Invalidated
@@ -165,8 +168,7 @@ pub fn run_governed_flow_proof(_root: &Path) -> GovernedFlowReport {
         && affected_packet_outcome.reevaluation_required
         && affected_packet_outcome.remediation_required
         && affected_packet_outcome.packet.reevaluation_required
-        && affected_packet_outcome.packet.admissibility_state
-            == AdmissibilityState::NotAdmissible
+        && affected_packet_outcome.packet.admissibility_state == AdmissibilityState::NotAdmissible
         && !unaffected_packet_outcome.reevaluation_required
         && !unaffected_packet_outcome.remediation_required
         && unaffected_packet_outcome.packet.admissibility_state == AdmissibilityState::Admissible;

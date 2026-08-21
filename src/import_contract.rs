@@ -112,7 +112,10 @@ pub fn validate_import_workspace(workspace_path: &Path) -> Result<RoundtripRepor
     for relative in REQUIRED_REHYDRATED_FILES {
         let path = workspace_path.join(relative);
         if !path.is_file() {
-            return Err(format!("missing required rehydrated file: {}", path.display()));
+            return Err(format!(
+                "missing required rehydrated file: {}",
+                path.display()
+            ));
         }
     }
 
@@ -176,10 +179,10 @@ fn validate_string_list_exact(
 }
 
 fn assert_file_bytes_equal(left: &Path, right: &Path) -> Result<(), String> {
-    let left_bytes = fs::read(left)
-        .map_err(|e| format!("failed to read file {}: {e}", left.display()))?;
-    let right_bytes = fs::read(right)
-        .map_err(|e| format!("failed to read file {}: {e}", right.display()))?;
+    let left_bytes =
+        fs::read(left).map_err(|e| format!("failed to read file {}: {e}", left.display()))?;
+    let right_bytes =
+        fs::read(right).map_err(|e| format!("failed to read file {}: {e}", right.display()))?;
 
     if left_bytes == right_bytes {
         Ok(())
@@ -316,14 +319,18 @@ mod tests {
             extract_string_field(text, "source_zip").unwrap(),
             "target/proof_artifacts/slice14_export.zip"
         );
-        assert_eq!(extract_array_field(text, "archive_members").unwrap().len(), 5);
+        assert_eq!(
+            extract_array_field(text, "archive_members").unwrap().len(),
+            5
+        );
     }
 
     #[test]
     fn validate_string_list_exact_rejects_drift() {
         let actual = vec!["README.txt".to_string()];
-        let error = validate_string_list_exact(&actual, REQUIRED_ARCHIVE_MEMBERS, "archive_members")
-            .expect_err("drift should fail");
+        let error =
+            validate_string_list_exact(&actual, REQUIRED_ARCHIVE_MEMBERS, "archive_members")
+                .expect_err("drift should fail");
         assert!(error.contains("archive_members mismatch"));
     }
 

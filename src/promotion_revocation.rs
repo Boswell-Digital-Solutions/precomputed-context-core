@@ -5,7 +5,8 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const PROMOTION_REVOCATION_REQUEST_SCHEMA_VERSION: &str = "proof.promotion-revocation-request.v1";
+pub const PROMOTION_REVOCATION_REQUEST_SCHEMA_VERSION: &str =
+    "proof.promotion-revocation-request.v1";
 pub const PROMOTION_ROLLBACK_RECEIPT_SCHEMA_VERSION: &str = "proof.promotion-rollback-receipt.v1";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

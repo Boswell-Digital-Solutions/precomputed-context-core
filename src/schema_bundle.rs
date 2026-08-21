@@ -5,12 +5,12 @@ use schemars::schema_for;
 use serde_json::Value;
 
 use crate::authority::AuthorityResolutionRecord;
+use crate::context_assembly::{ContextAssemblyRequest, ContextBundleManifest};
 use crate::contracts::{
     KeyFilePacketContract, RepoNavigationAssistPacketContract, RepoNavigationMapContract,
     ValidationCommandPacketContract,
 };
 use crate::events::EventRecord;
-use crate::context_assembly::{ContextAssemblyRequest, ContextBundleManifest};
 use crate::models::{OverrideRecord, RemediationItem};
 
 pub fn schema_catalog() -> Vec<(&'static str, Value)> {

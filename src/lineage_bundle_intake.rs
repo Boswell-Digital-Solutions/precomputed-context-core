@@ -69,7 +69,8 @@ pub fn publish_intaken_lineage_bundle(
     }
     fs::create_dir_all(&bundle_dir)?;
 
-    let manifest = load_lineage_bundle_manifest(&default_lineage_bundle_manifest_path(source_bundle_dir))?;
+    let manifest =
+        load_lineage_bundle_manifest(&default_lineage_bundle_manifest_path(source_bundle_dir))?;
     for entry in &manifest.entries {
         let source_path = source_bundle_dir.join(&entry.relative_path);
         let dest_path = bundle_dir.join(&entry.relative_path);

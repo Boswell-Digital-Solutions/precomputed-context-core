@@ -1,6 +1,7 @@
 use precomputed_context_core::consumer_handoff::{
     build_bounded_consumer_handoff_receipt, default_bounded_consumer_handoff_package_dir,
-    default_bounded_consumer_handoff_receipt_path, default_consumer_handoff_active_lineage_source_dir,
+    default_bounded_consumer_handoff_receipt_path,
+    default_consumer_handoff_active_lineage_source_dir,
     default_consumer_handoff_consumption_source_dir, default_consumer_handoff_workspace_current,
     load_bounded_consumer_handoff_receipt, publish_bounded_consumer_handoff,
 };
@@ -32,7 +33,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let workspace_current = default_consumer_handoff_workspace_current();
 
     reset_dir(&workspace_current)?;
-    let receipt = build_bounded_consumer_handoff_receipt(&active_lineage_source, &consumption_source)?;
+    let receipt =
+        build_bounded_consumer_handoff_receipt(&active_lineage_source, &consumption_source)?;
     publish_bounded_consumer_handoff(
         &active_lineage_source,
         &consumption_source,
@@ -43,7 +45,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let handoff_receipt_path = default_bounded_consumer_handoff_receipt_path(&workspace_current);
     let handoff_receipt_sha256 = sha256_file(&handoff_receipt_path)?;
 
-    let repeated_receipt = build_bounded_consumer_handoff_receipt(&active_lineage_source, &consumption_source)?;
+    let repeated_receipt =
+        build_bounded_consumer_handoff_receipt(&active_lineage_source, &consumption_source)?;
     publish_bounded_consumer_handoff(
         &active_lineage_source,
         &consumption_source,
@@ -64,21 +67,25 @@ fn main() -> Result<(), Box<dyn Error>> {
     let scenario_root = PathBuf::from("target/proof_artifacts/slice30_consumer_handoff/scenarios");
     reset_dir(&scenario_root)?;
 
-    let (missing_attestation_receipt_rejected, no_receipt_publication_on_missing_attestation_receipt) = {
+    let (
+        missing_attestation_receipt_rejected,
+        no_receipt_publication_on_missing_attestation_receipt,
+    ) = {
         let scenario_consumption = scenario_root.join("missing_attestation_consumption");
         copy_dir(&consumption_source, &scenario_consumption)?;
         fs::remove_file(scenario_consumption.join("attestation_receipt.json"))?;
         let scenario_output = scenario_root.join("missing_attestation_output");
         reset_dir(&scenario_output)?;
-        let result = build_bounded_consumer_handoff_receipt(&active_lineage_source, &scenario_consumption)
-            .and_then(|receipt| {
-                publish_bounded_consumer_handoff(
-                    &active_lineage_source,
-                    &scenario_consumption,
-                    &scenario_output,
-                    &receipt,
-                )
-            });
+        let result =
+            build_bounded_consumer_handoff_receipt(&active_lineage_source, &scenario_consumption)
+                .and_then(|receipt| {
+                    publish_bounded_consumer_handoff(
+                        &active_lineage_source,
+                        &scenario_consumption,
+                        &scenario_output,
+                        &receipt,
+                    )
+                });
         (
             result.is_err(),
             !default_bounded_consumer_handoff_receipt_path(&scenario_output).exists(),
@@ -94,15 +101,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         )?;
         let scenario_output = scenario_root.join("attestation_mismatch_output");
         reset_dir(&scenario_output)?;
-        let result = build_bounded_consumer_handoff_receipt(&active_lineage_source, &scenario_consumption)
-            .and_then(|receipt| {
-                publish_bounded_consumer_handoff(
-                    &active_lineage_source,
-                    &scenario_consumption,
-                    &scenario_output,
-                    &receipt,
-                )
-            });
+        let result =
+            build_bounded_consumer_handoff_receipt(&active_lineage_source, &scenario_consumption)
+                .and_then(|receipt| {
+                    publish_bounded_consumer_handoff(
+                        &active_lineage_source,
+                        &scenario_consumption,
+                        &scenario_output,
+                        &receipt,
+                    )
+                });
         (
             result.is_err(),
             !default_bounded_consumer_handoff_receipt_path(&scenario_output).exists(),
@@ -145,7 +153,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_receipt_publication_on_missing_activation_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice30_consumer_handoff/consumer_handoff_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice30_consumer_handoff/consumer_handoff_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

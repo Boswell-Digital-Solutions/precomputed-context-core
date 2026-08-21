@@ -132,10 +132,7 @@ impl PacketReevaluationEvidenceRecord {
     pub fn validate(&self) -> Result<(), String> {
         validate_nonempty("packet_reevaluation_id", &self.packet_reevaluation_id)?;
         validate_nonempty("packet_id", &self.packet_id)?;
-        validate_distinct_nonempty_vec(
-            "constituent_artifact_ids",
-            &self.constituent_artifact_ids,
-        )?;
+        validate_distinct_nonempty_vec("constituent_artifact_ids", &self.constituent_artifact_ids)?;
         validate_distinct_nonempty_vec(
             "trigger_invalidation_record_ids",
             &self.trigger_invalidation_record_ids,
@@ -324,7 +321,9 @@ mod tests {
             proof_digest: "sha256:def456".into(),
         };
 
-        let err = manifest.validate().expect_err("expected validation failure");
+        let err = manifest
+            .validate()
+            .expect_err("expected validation failure");
         assert!(err.contains("event_receipt_ids must not be empty"));
     }
 

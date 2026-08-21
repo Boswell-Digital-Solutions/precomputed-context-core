@@ -1,17 +1,17 @@
-use precomputed_context_core::promotion_gate::{
-    build_promotion_approval, validate_promotion_approval, write_promotion_approval,
-};
-use precomputed_context_core::import_gate::{
-    publish_authorized_import_receipt, validate_rehydrate_gate,
-};
 use precomputed_context_core::authorization_evidence::{
     build_authorization_evidence_link, write_authorization_evidence_link,
 };
 use precomputed_context_core::import_authorization::{
     authorize_zip_import_from_policy_file, write_authorization_receipt,
 };
+use precomputed_context_core::import_gate::{
+    publish_authorized_import_receipt, validate_rehydrate_gate,
+};
 use precomputed_context_core::import_policy::{
     default_import_authorization_policy, write_import_authorization_policy,
+};
+use precomputed_context_core::promotion_gate::{
+    build_promotion_approval, validate_promotion_approval, write_promotion_approval,
 };
 use precomputed_context_core::trust_envelope::{
     build_signed_trust_envelope_for_zip, default_proof_signer, write_signed_trust_envelope,
@@ -27,7 +27,10 @@ fn valid_approval_allows_promotion() -> Result<(), Box<dyn Error>> {
     let prepared = make_prepared_gate_surface(&root)?;
 
     let approval_path = root.join("operator_approval.json");
-    let approval = build_promotion_approval(&prepared.gate_receipt_path, &prepared.gated_import_receipt_path)?;
+    let approval = build_promotion_approval(
+        &prepared.gate_receipt_path,
+        &prepared.gated_import_receipt_path,
+    )?;
     write_promotion_approval(&approval_path, &approval)?;
 
     let receipt = validate_promotion_approval(
@@ -47,7 +50,10 @@ fn gate_hash_mismatch_fails_closed() -> Result<(), Box<dyn Error>> {
     let prepared = make_prepared_gate_surface(&root)?;
 
     let approval_path = root.join("operator_approval.json");
-    let mut approval = build_promotion_approval(&prepared.gate_receipt_path, &prepared.gated_import_receipt_path)?;
+    let mut approval = build_promotion_approval(
+        &prepared.gate_receipt_path,
+        &prepared.gated_import_receipt_path,
+    )?;
     approval.gate_receipt_sha256 = "0".repeat(64);
     write_promotion_approval(&approval_path, &approval)?;
 
@@ -78,13 +84,17 @@ fn make_prepared_gate_surface(root: &PathBuf) -> Result<PreparedGateSurface, Box
     let gated_workspace = root.join("gated_workspace");
 
     fs::write(&zip_path, b"slice21 promotion package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
