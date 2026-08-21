@@ -1,6 +1,6 @@
 use precomputed_context_core::promotion_revocation::{
-    build_revocation_request, default_operator_id, default_rollback_receipt_path,
-    default_revocation_request_path, default_revocation_workspace_current,
+    build_revocation_request, default_operator_id, default_revocation_request_path,
+    default_revocation_workspace_current, default_rollback_receipt_path,
     default_slice21_promoted_import_receipt_path, default_slice21_promotion_receipt_path,
     load_rollback_receipt, publish_rollback_state, validate_revocation_request,
     write_revocation_request,
@@ -75,7 +75,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let scenario_dir = scenario_root.join("promotion_hash_mismatch");
         fs::create_dir_all(&scenario_dir)?;
         let bad_request_path = scenario_dir.join("operator_revocation.json");
-        let mut bad_request = build_revocation_request(&promotion_receipt_path, &promoted_import_receipt_path)?;
+        let mut bad_request =
+            build_revocation_request(&promotion_receipt_path, &promoted_import_receipt_path)?;
         bad_request.promotion_receipt_sha256 = "0".repeat(64);
         write_revocation_request(&bad_request_path, &bad_request)?;
         let result = validate_revocation_request(
@@ -87,11 +88,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         (result.is_err(), !published)
     };
 
-    let (missing_promoted_import_receipt_rejected, no_publication_on_missing_promoted_import_receipt) = {
+    let (
+        missing_promoted_import_receipt_rejected,
+        no_publication_on_missing_promoted_import_receipt,
+    ) = {
         let scenario_dir = scenario_root.join("missing_promoted_import_receipt");
         fs::create_dir_all(&scenario_dir)?;
         let scenario_request_path = scenario_dir.join("operator_revocation.json");
-        let request = build_revocation_request(&promotion_receipt_path, &promoted_import_receipt_path)?;
+        let request =
+            build_revocation_request(&promotion_receipt_path, &promoted_import_receipt_path)?;
         write_revocation_request(&scenario_request_path, &request)?;
         let result = validate_revocation_request(
             &promotion_receipt_path,
@@ -108,17 +113,21 @@ fn main() -> Result<(), Box<dyn Error>> {
         rollback_receipt_file_name: file_name_string(&rollback_receipt_path)?,
         rollback_receipt_sha256: rollback_receipt_sha256.clone(),
         repeated_rollback_receipt_sha256: repeated_rollback_receipt_sha256.clone(),
-        stable_repeated_rollback_receipt: rollback_receipt_sha256 == repeated_rollback_receipt_sha256,
+        stable_repeated_rollback_receipt: rollback_receipt_sha256
+            == repeated_rollback_receipt_sha256,
         missing_request_rejected,
         promotion_hash_mismatch_rejected,
         missing_promoted_import_receipt_rejected,
-        no_promoted_import_publication_after_rollback: !workspace_current.join("import_receipt.json").exists(),
+        no_promoted_import_publication_after_rollback: !workspace_current
+            .join("import_receipt.json")
+            .exists(),
         no_publication_on_missing_request,
         no_publication_on_promotion_hash_mismatch,
         no_publication_on_missing_promoted_import_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice22_revocation/revocation_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice22_revocation/revocation_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

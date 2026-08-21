@@ -4,8 +4,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::durable_evidence::{
-    ArtifactInvalidationEvidenceRecord, EvidenceAdmissionResult, EvidenceTargetKind,
-    EventReceiptRecord, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
+    ArtifactInvalidationEvidenceRecord, EventReceiptRecord, EvidenceAdmissionResult,
+    EvidenceTargetKind, PacketReevaluationEvidenceRecord, RemediationEvidenceRecord,
 };
 use crate::enums::{AdmissibilityState, EventType, FreshnessState};
 use crate::evidence_bundle::{build_and_write_replay_bundle, EvidenceBundleError};
@@ -69,7 +69,9 @@ pub struct ReplayScenarioReport {
     pub replay_ok: bool,
 }
 
-pub fn run_replay_scenario_proof(repo_root: &Path) -> Result<ReplayScenarioReport, ReplayScenarioError> {
+pub fn run_replay_scenario_proof(
+    repo_root: &Path,
+) -> Result<ReplayScenarioReport, ReplayScenarioError> {
     let proof_root = repo_root.join("target/proof_artifacts/slice12_smoke");
 
     if proof_root.exists() {
@@ -185,9 +187,7 @@ mod tests {
             .expect("system time should be after epoch")
             .as_nanos();
 
-        env::temp_dir().join(format!(
-            "precomputed_context_core_{label}_{nanos}"
-        ))
+        env::temp_dir().join(format!("precomputed_context_core_{label}_{nanos}"))
     }
 
     fn cleanup_root(root: &Path) {

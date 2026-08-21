@@ -52,7 +52,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = publish_lineage_bundle(&scenario_dir, &sources)?;
         fs::write(scenario_dir.join("rogue.txt"), b"rogue")?;
         let result = verify_lineage_bundle(&scenario_dir);
-        (result.is_err(), !scenario_dir.join("bundle_verified.txt").exists())
+        (
+            result.is_err(),
+            !scenario_dir.join("bundle_verified.txt").exists(),
+        )
     };
 
     let (manifest_hash_mismatch_rejected, no_success_receipt_on_manifest_hash_mismatch) = {
@@ -60,11 +63,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         reset_dir(&scenario_dir)?;
         let _ = publish_lineage_bundle(&scenario_dir, &sources)?;
         let envelope_path = default_lineage_bundle_envelope_path(&scenario_dir);
-        let mut envelope_value: serde_json::Value = serde_json::from_slice(&fs::read(&envelope_path)?)?;
+        let mut envelope_value: serde_json::Value =
+            serde_json::from_slice(&fs::read(&envelope_path)?)?;
         envelope_value["manifest_sha256"] = serde_json::Value::String("0".repeat(64));
         fs::write(&envelope_path, serde_json::to_vec_pretty(&envelope_value)?)?;
         let result = verify_lineage_bundle(&scenario_dir);
-        (result.is_err(), !scenario_dir.join("bundle_verified.txt").exists())
+        (
+            result.is_err(),
+            !scenario_dir.join("bundle_verified.txt").exists(),
+        )
     };
 
     let (member_sha_mismatch_rejected, no_success_receipt_on_member_sha_mismatch) = {
@@ -73,7 +80,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _ = publish_lineage_bundle(&scenario_dir, &sources)?;
         fs::write(scenario_dir.join("promotion_receipt.json"), b"tampered")?;
         let result = verify_lineage_bundle(&scenario_dir);
-        (result.is_err(), !scenario_dir.join("bundle_verified.txt").exists())
+        (
+            result.is_err(),
+            !scenario_dir.join("bundle_verified.txt").exists(),
+        )
     };
 
     let report = LineageBundleReport {
@@ -92,7 +102,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_success_receipt_on_member_sha_mismatch,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice25_lineage_bundle/lineage_bundle_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice25_lineage_bundle/lineage_bundle_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

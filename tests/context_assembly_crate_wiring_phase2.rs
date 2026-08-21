@@ -1,8 +1,8 @@
+use precomputed_context_core::schema_bundle::schema_catalog;
 use precomputed_context_core::{
     assemble_context, AuthorityState, ContextAssemblyRequest, FreshnessPolicy, OverrideDecision,
     OverridePosture, SourceClass, SourceInput, TargetRefs,
 };
-use precomputed_context_core::schema_bundle::schema_catalog;
 
 fn base_request() -> ContextAssemblyRequest {
     ContextAssemblyRequest {
@@ -62,7 +62,8 @@ fn base_request() -> ContextAssemblyRequest {
 
 #[test]
 fn crate_root_exports_context_assembly_surface() {
-    let output = assemble_context(&base_request()).expect("crate-root exported assembly should succeed");
+    let output =
+        assemble_context(&base_request()).expect("crate-root exported assembly should succeed");
     assert_eq!(
         output.manifest.override_decision,
         OverrideDecision::AllowedStyleRuleOverrideUsed

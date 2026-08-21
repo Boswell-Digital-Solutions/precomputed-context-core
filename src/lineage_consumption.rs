@@ -105,8 +105,9 @@ pub fn build_active_lineage_attestation_receipt(
         &active_lineage_dir.join("rollback_receipt.json"),
         &active_lineage_dir.join("re_promotion_receipt.json"),
     )?;
-    let stored_supersession_value: serde_json::Value =
-        serde_json::from_slice(&fs::read(active_lineage_dir.join("supersession_chain_receipt.json"))?)?;
+    let stored_supersession_value: serde_json::Value = serde_json::from_slice(&fs::read(
+        active_lineage_dir.join("supersession_chain_receipt.json"),
+    )?)?;
     let canonical_supersession_value = serde_json::to_value(&canonical_supersession)?;
     if stored_supersession_value != canonical_supersession_value {
         return Err(

@@ -1,6 +1,6 @@
 use crate::lineage_bundle::{
-    default_lineage_bundle_envelope_path, default_lineage_bundle_manifest_path, load_lineage_bundle_manifest,
-    sha256_hex_file, verify_lineage_bundle,
+    default_lineage_bundle_envelope_path, default_lineage_bundle_manifest_path,
+    load_lineage_bundle_manifest, sha256_hex_file, verify_lineage_bundle,
 };
 use crate::lineage_bundle_intake::{
     default_intaken_bundle_dir, default_lineage_bundle_intake_receipt_path,
@@ -43,9 +43,14 @@ pub fn default_rehydrated_lineage_dir(workspace_current_dir: &Path) -> PathBuf {
 pub fn build_lineage_rehydrate_receipt(
     intake_workspace_current_dir: &Path,
 ) -> Result<LineageRehydrateReceipt, Box<dyn Error>> {
-    let intake_receipt_path = default_lineage_bundle_intake_receipt_path(intake_workspace_current_dir);
+    let intake_receipt_path =
+        default_lineage_bundle_intake_receipt_path(intake_workspace_current_dir);
     if !intake_receipt_path.exists() {
-        return Err(format!("lineage intake receipt missing: {}", intake_receipt_path.display()).into());
+        return Err(format!(
+            "lineage intake receipt missing: {}",
+            intake_receipt_path.display()
+        )
+        .into());
     }
     let intake_receipt = load_lineage_bundle_intake_receipt(&intake_receipt_path)?;
     if !intake_receipt.accepted {
@@ -80,11 +85,14 @@ pub fn build_lineage_rehydrate_receipt(
         &bundle_dir.join("rollback_receipt.json"),
         &bundle_dir.join("re_promotion_receipt.json"),
     )?;
-    let stored_supersession_value: serde_json::Value =
-        serde_json::from_slice(&fs::read(bundle_dir.join("supersession_chain_receipt.json"))?)?;
+    let stored_supersession_value: serde_json::Value = serde_json::from_slice(&fs::read(
+        bundle_dir.join("supersession_chain_receipt.json"),
+    )?)?;
     let canonical_supersession_value = serde_json::to_value(&canonical_supersession)?;
     if stored_supersession_value != canonical_supersession_value {
-        return Err("stored supersession chain receipt does not match canonical reconstruction".into());
+        return Err(
+            "stored supersession chain receipt does not match canonical reconstruction".into(),
+        );
     }
 
     Ok(LineageRehydrateReceipt {
@@ -112,12 +120,19 @@ pub fn publish_rehydrated_lineage_state(
     fs::create_dir_all(&lineage_dir)?;
 
     let bundle_dir = default_intaken_bundle_dir(intake_workspace_current_dir);
-    let manifest = load_lineage_bundle_manifest(&default_lineage_bundle_manifest_path(&bundle_dir))?;
+    let manifest =
+        load_lineage_bundle_manifest(&default_lineage_bundle_manifest_path(&bundle_dir))?;
     for entry in &manifest.entries {
-        fs::copy(bundle_dir.join(&entry.relative_path), lineage_dir.join(&entry.relative_path))?;
+        fs::copy(
+            bundle_dir.join(&entry.relative_path),
+            lineage_dir.join(&entry.relative_path),
+        )?;
     }
 
-    write_lineage_rehydrate_receipt(&default_lineage_rehydrate_receipt_path(workspace_current_dir), receipt)?;
+    write_lineage_rehydrate_receipt(
+        &default_lineage_rehydrate_receipt_path(workspace_current_dir),
+        receipt,
+    )?;
     Ok(())
 }
 
@@ -132,7 +147,9 @@ pub fn write_lineage_rehydrate_receipt(
     Ok(())
 }
 
-pub fn load_lineage_rehydrate_receipt(path: &Path) -> Result<LineageRehydrateReceipt, Box<dyn Error>> {
+pub fn load_lineage_rehydrate_receipt(
+    path: &Path,
+) -> Result<LineageRehydrateReceipt, Box<dyn Error>> {
     let bytes = fs::read(path)?;
     let receipt: LineageRehydrateReceipt = serde_json::from_slice(&bytes)?;
     Ok(receipt)

@@ -11,20 +11,29 @@ use std::fs;
 use std::path::PathBuf;
 
 #[test]
-fn signed_trust_envelope_verifies_and_authorizes_for_trusted_signer() -> Result<(), Box<dyn Error>> {
+fn signed_trust_envelope_verifies_and_authorizes_for_trusted_signer() -> Result<(), Box<dyn Error>>
+{
     let root = unique_temp_dir("slice18_trust_ok")?;
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let envelope_path = root.join("package.zip.trust_envelope.json");
 
     fs::write(&zip_path, b"slice18 package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     verify_signed_trust_envelope(&envelope)?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
-    let receipt = authorize_zip_import(&zip_path, Some(&envelope_path), &default_import_authorization_policy())?;
+    let receipt = authorize_zip_import(
+        &zip_path,
+        Some(&envelope_path),
+        &default_import_authorization_policy(),
+    )?;
     assert!(receipt.authorized);
     assert_eq!(receipt.signer_id, "slice18-proof-signer-v1");
     Ok(())
@@ -38,13 +47,20 @@ fn rogue_signer_is_rejected_by_import_policy() -> Result<(), Box<dyn Error>> {
     let envelope_path = root.join("package.zip.trust_envelope.json");
 
     fs::write(&zip_path, b"slice18 package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
 
     let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, rogue_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
-    let error = authorize_zip_import(&zip_path, Some(&envelope_path), &default_import_authorization_policy())
-        .expect_err("rogue signer must be rejected");
+    let error = authorize_zip_import(
+        &zip_path,
+        Some(&envelope_path),
+        &default_import_authorization_policy(),
+    )
+    .expect_err("rogue signer must be rejected");
     assert!(error.to_string().contains("not authorized"));
     Ok(())
 }

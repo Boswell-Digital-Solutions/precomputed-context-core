@@ -29,7 +29,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_supersession_chain_builds_complete_lineage() -> Result<(), Box<dyn Error>> {
@@ -44,7 +44,10 @@ fn valid_supersession_chain_builds_complete_lineage() -> Result<(), Box<dyn Erro
 
     assert!(receipt.complete);
     assert_eq!(receipt.links.len(), 2);
-    assert_eq!(receipt.lineage_state, "promotion_rolled_back_then_repromoted");
+    assert_eq!(
+        receipt.lineage_state,
+        "promotion_rolled_back_then_repromoted"
+    );
     Ok(())
 }
 
@@ -76,7 +79,9 @@ struct PreparedSupersessionSurface {
     repromotion_receipt_path: PathBuf,
 }
 
-fn make_prepared_supersession_surface(root: &PathBuf) -> Result<PreparedSupersessionSurface, Box<dyn Error>> {
+fn make_prepared_supersession_surface(
+    root: &Path,
+) -> Result<PreparedSupersessionSurface, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");
@@ -93,13 +98,17 @@ fn make_prepared_supersession_surface(root: &PathBuf) -> Result<PreparedSuperses
     let reapproval_path = root.join("operator_reapproval.json");
 
     fs::write(&zip_path, b"slice24 supersession package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =

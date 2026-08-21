@@ -37,9 +37,14 @@ pub fn default_active_lineage_dir(workspace_current_dir: &Path) -> PathBuf {
 pub fn build_lineage_activation_receipt(
     rehydrate_workspace_current_dir: &Path,
 ) -> Result<LineageActivationReceipt, Box<dyn Error>> {
-    let rehydrate_receipt_path = default_lineage_rehydrate_receipt_path(rehydrate_workspace_current_dir);
+    let rehydrate_receipt_path =
+        default_lineage_rehydrate_receipt_path(rehydrate_workspace_current_dir);
     if !rehydrate_receipt_path.exists() {
-        return Err(format!("lineage rehydrate receipt missing: {}", rehydrate_receipt_path.display()).into());
+        return Err(format!(
+            "lineage rehydrate receipt missing: {}",
+            rehydrate_receipt_path.display()
+        )
+        .into());
     }
     let rehydrate_receipt = load_lineage_rehydrate_receipt(&rehydrate_receipt_path)?;
     if !rehydrate_receipt.accepted {
@@ -52,11 +57,14 @@ pub fn build_lineage_activation_receipt(
         &lineage_dir.join("rollback_receipt.json"),
         &lineage_dir.join("re_promotion_receipt.json"),
     )?;
-    let stored_supersession_value: serde_json::Value =
-        serde_json::from_slice(&fs::read(lineage_dir.join("supersession_chain_receipt.json"))?)?;
+    let stored_supersession_value: serde_json::Value = serde_json::from_slice(&fs::read(
+        lineage_dir.join("supersession_chain_receipt.json"),
+    )?)?;
     let canonical_supersession_value = serde_json::to_value(&canonical_supersession)?;
     if stored_supersession_value != canonical_supersession_value {
-        return Err("rehydrated supersession chain receipt does not match canonical reconstruction".into());
+        return Err(
+            "rehydrated supersession chain receipt does not match canonical reconstruction".into(),
+        );
     }
 
     Ok(LineageActivationReceipt {
@@ -91,7 +99,10 @@ pub fn publish_activated_lineage_state(
         "re_promotion_receipt.json",
         "supersession_chain_receipt.json",
     ] {
-        fs::copy(source_lineage_dir.join(file_name), active_lineage_dir.join(file_name))?;
+        fs::copy(
+            source_lineage_dir.join(file_name),
+            active_lineage_dir.join(file_name),
+        )?;
     }
 
     write_lineage_activation_receipt(
@@ -112,7 +123,9 @@ pub fn write_lineage_activation_receipt(
     Ok(())
 }
 
-pub fn load_lineage_activation_receipt(path: &Path) -> Result<LineageActivationReceipt, Box<dyn Error>> {
+pub fn load_lineage_activation_receipt(
+    path: &Path,
+) -> Result<LineageActivationReceipt, Box<dyn Error>> {
     let bytes = fs::read(path)?;
     let receipt: LineageActivationReceipt = serde_json::from_slice(&bytes)?;
     Ok(receipt)

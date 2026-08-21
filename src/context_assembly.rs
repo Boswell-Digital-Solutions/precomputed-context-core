@@ -9,7 +9,9 @@ use std::fmt;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
+)]
 pub enum SourceClass {
     ActiveScene,
     AdjacentSceneSummaryOrClippedBody,
@@ -251,14 +253,35 @@ pub struct ContextAssemblyOutput {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ContextAssemblyError {
-    MissingRequiredSource { payload_ref: String, source_class: SourceClass },
-    StaleSource { payload_ref: String, age_minutes: u64, max_age_minutes: u64 },
-    AuthorityConflictUnresolved { payload_ref: String },
-    DisallowedOverride { payload_ref: String, source_class: SourceClass },
-    UnsupportedSourceClass { source_class: SourceClass },
-    MissingProvenance { payload_ref: String, source_class: SourceClass },
-    DuplicateFreshnessOverride { source_class: SourceClass },
-    UnsupportedFreshnessOverride { source_class: SourceClass },
+    MissingRequiredSource {
+        payload_ref: String,
+        source_class: SourceClass,
+    },
+    StaleSource {
+        payload_ref: String,
+        age_minutes: u64,
+        max_age_minutes: u64,
+    },
+    AuthorityConflictUnresolved {
+        payload_ref: String,
+    },
+    DisallowedOverride {
+        payload_ref: String,
+        source_class: SourceClass,
+    },
+    UnsupportedSourceClass {
+        source_class: SourceClass,
+    },
+    MissingProvenance {
+        payload_ref: String,
+        source_class: SourceClass,
+    },
+    DuplicateFreshnessOverride {
+        source_class: SourceClass,
+    },
+    UnsupportedFreshnessOverride {
+        source_class: SourceClass,
+    },
 }
 
 impl fmt::Display for ContextAssemblyError {
@@ -332,7 +355,9 @@ pub fn assemble_context(
 
     for source in &request.sources {
         if !source.source_class.is_phase1_allowed()
-            || !request.allowed_source_classes.contains(&source.source_class)
+            || !request
+                .allowed_source_classes
+                .contains(&source.source_class)
         {
             return Err(ContextAssemblyError::UnsupportedSourceClass {
                 source_class: source.source_class.clone(),
@@ -450,7 +475,9 @@ pub fn assemble_context(
     })
 }
 
-fn validate_allowed_classes(allowed_source_classes: &[SourceClass]) -> Result<(), ContextAssemblyError> {
+fn validate_allowed_classes(
+    allowed_source_classes: &[SourceClass],
+) -> Result<(), ContextAssemblyError> {
     for source_class in allowed_source_classes {
         if !source_class.is_phase1_allowed() {
             return Err(ContextAssemblyError::UnsupportedSourceClass {
@@ -487,7 +514,9 @@ fn validate_freshness_policy(policy: &FreshnessPolicy) -> Result<(), ContextAsse
     Ok(())
 }
 
-fn validate_required_target_refs(request: &ContextAssemblyRequest) -> Result<(), ContextAssemblyError> {
+fn validate_required_target_refs(
+    request: &ContextAssemblyRequest,
+) -> Result<(), ContextAssemblyError> {
     require_target_ref(
         request,
         request.target_refs.active_scene_ref.as_ref(),
@@ -504,7 +533,11 @@ fn validate_required_target_refs(request: &ContextAssemblyRequest) -> Result<(),
     }
 
     for payload_ref in &request.target_refs.accepted_style_rule_refs {
-        require_target_ref(request, Some(payload_ref), SourceClass::AcceptedStyleRuleRecord)?;
+        require_target_ref(
+            request,
+            Some(payload_ref),
+            SourceClass::AcceptedStyleRuleRecord,
+        )?;
     }
 
     Ok(())

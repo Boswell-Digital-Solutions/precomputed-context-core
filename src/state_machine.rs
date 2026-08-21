@@ -61,24 +61,15 @@ pub fn compute_default_packet_admissibility(
         return AdmissibilityState::NotAdmissible;
     }
 
-    if constituent_freshnesses
-        .iter()
-        .any(|state| *state == FreshnessState::Invalidated)
-    {
+    if constituent_freshnesses.contains(&FreshnessState::Invalidated) {
         return AdmissibilityState::NotAdmissible;
     }
 
-    if constituent_freshnesses
-        .iter()
-        .any(|state| *state == FreshnessState::Stale)
-    {
+    if constituent_freshnesses.contains(&FreshnessState::Stale) {
         return AdmissibilityState::Restricted;
     }
 
-    if constituent_freshnesses
-        .iter()
-        .any(|state| *state == FreshnessState::ReviewDue)
-    {
+    if constituent_freshnesses.contains(&FreshnessState::ReviewDue) {
         return AdmissibilityState::AdmissibleWithWarning;
     }
 

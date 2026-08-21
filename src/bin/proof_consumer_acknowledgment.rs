@@ -39,19 +39,22 @@ fn main() -> Result<(), Box<dyn Error>> {
     let closure = build_return_channel_closure_receipt(&handoff_source, &workspace_current)?;
     publish_return_channel_closure(&workspace_current, &closure)?;
 
-    let acknowledgment_receipt_path = default_consumer_acknowledgment_receipt_path(&workspace_current);
+    let acknowledgment_receipt_path =
+        default_consumer_acknowledgment_receipt_path(&workspace_current);
     let closure_receipt_path = default_return_channel_closure_receipt_path(&workspace_current);
     let acknowledgment_receipt_sha256 = sha256_file(&acknowledgment_receipt_path)?;
     let closure_receipt_sha256 = sha256_file(&closure_receipt_path)?;
 
     let repeated_ack = build_consumer_acknowledgment_receipt(&handoff_source)?;
     publish_consumer_acknowledgment(&workspace_current, &repeated_ack)?;
-    let repeated_closure = build_return_channel_closure_receipt(&handoff_source, &workspace_current)?;
+    let repeated_closure =
+        build_return_channel_closure_receipt(&handoff_source, &workspace_current)?;
     publish_return_channel_closure(&workspace_current, &repeated_closure)?;
     let repeated_acknowledgment_receipt_sha256 = sha256_file(&acknowledgment_receipt_path)?;
     let repeated_closure_receipt_sha256 = sha256_file(&closure_receipt_path)?;
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice31_consumer_acknowledgment/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice31_consumer_acknowledgment/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_handoff_receipt_rejected, no_ack_publication_on_missing_handoff_receipt) = {

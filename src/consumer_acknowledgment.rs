@@ -50,11 +50,16 @@ pub fn default_return_channel_closure_receipt_path(workspace_current_dir: &Path)
 pub fn build_consumer_acknowledgment_receipt(
     handoff_workspace_current_dir: &Path,
 ) -> Result<ConsumerAcknowledgmentReceipt, Box<dyn Error>> {
-    let handoff_receipt_path = default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
+    let handoff_receipt_path =
+        default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
     let package_dir = default_bounded_consumer_handoff_package_dir(handoff_workspace_current_dir);
 
     if !handoff_receipt_path.exists() {
-        return Err(format!("handoff receipt missing: {}", handoff_receipt_path.display()).into());
+        return Err(format!(
+            "handoff receipt missing: {}",
+            handoff_receipt_path.display()
+        )
+        .into());
     }
 
     let handoff_receipt = load_bounded_consumer_handoff_receipt(&handoff_receipt_path)?;
@@ -78,7 +83,8 @@ pub fn build_return_channel_closure_receipt(
     handoff_workspace_current_dir: &Path,
     acknowledgment_workspace_current_dir: &Path,
 ) -> Result<ReturnChannelClosureReceipt, Box<dyn Error>> {
-    let handoff_receipt_path = default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
+    let handoff_receipt_path =
+        default_bounded_consumer_handoff_receipt_path(handoff_workspace_current_dir);
     let acknowledgment_receipt_path =
         default_consumer_acknowledgment_receipt_path(acknowledgment_workspace_current_dir);
 

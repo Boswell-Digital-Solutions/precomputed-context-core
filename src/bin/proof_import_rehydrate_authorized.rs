@@ -33,9 +33,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let zip_path = PathBuf::from("target/proof_artifacts/slice14_export.zip");
     let policy_path = default_import_policy_path();
     let trust_envelope_path = default_trust_envelope_path(&zip_path);
-    let authorization_receipt_path = PathBuf::from(
-        "target/proof_artifacts/slice19_policy/current/authorization_receipt.json",
-    );
+    let authorization_receipt_path =
+        PathBuf::from("target/proof_artifacts/slice19_policy/current/authorization_receipt.json");
     let evidence_link_path = default_authorization_evidence_link_path();
     let import_receipt_path =
         PathBuf::from("target/proof_artifacts/slice16_import/current/import_receipt.json");
@@ -66,7 +65,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         &evidence_link_path,
         &import_receipt_path,
     )?;
-    publish_authorized_import_receipt(&import_receipt_path, &workspace_current, &gate_receipt_repeat)?;
+    publish_authorized_import_receipt(
+        &import_receipt_path,
+        &workspace_current,
+        &gate_receipt_repeat,
+    )?;
     let repeated_gate_receipt_sha256 = sha256_file(&gate_receipt_path)?;
 
     let scenario_root = PathBuf::from("target/proof_artifacts/slice20_rehydrate_gate/scenarios");
@@ -141,9 +144,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_missing_import_receipt,
     };
 
-    let report_path = PathBuf::from(
-        "target/proof_artifacts/slice20_rehydrate_gate/rehydrate_gate_report.json",
-    );
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice20_rehydrate_gate/rehydrate_gate_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

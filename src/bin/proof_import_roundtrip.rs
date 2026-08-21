@@ -35,8 +35,12 @@ fn run() -> Result<(), String> {
     let report_path = default_roundtrip_report_path(&config.workspace_path);
     let report_text = render_roundtrip_report(&report);
 
-    fs::write(&report_path, report_text)
-        .map_err(|e| format!("failed to write roundtrip report {}: {e}", report_path.display()))?;
+    fs::write(&report_path, report_text).map_err(|e| {
+        format!(
+            "failed to write roundtrip report {}: {e}",
+            report_path.display()
+        )
+    })?;
 
     println!("slice17 import roundtrip passed");
     println!("  workspace: {}", config.workspace_path.display());

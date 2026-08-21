@@ -47,7 +47,9 @@ pub fn build_repromotion_approval(
         action: "re_promote_revoked_import_receipt".to_string(),
         rollback_receipt_sha256: sha256_hex_file(rollback_receipt_path)?,
         source_promotion_receipt_sha256: sha256_hex_file(source_promotion_receipt_path)?,
-        source_promoted_import_receipt_sha256: sha256_hex_file(source_promoted_import_receipt_path)?,
+        source_promoted_import_receipt_sha256: sha256_hex_file(
+            source_promoted_import_receipt_path,
+        )?,
         approved: true,
     })
 }
@@ -59,7 +61,11 @@ pub fn validate_repromotion_approval(
     repromotion_approval_path: &Path,
 ) -> Result<RePromotionReceipt, Box<dyn Error>> {
     if !rollback_receipt_path.exists() {
-        return Err(format!("rollback receipt missing: {}", rollback_receipt_path.display()).into());
+        return Err(format!(
+            "rollback receipt missing: {}",
+            rollback_receipt_path.display()
+        )
+        .into());
     }
     if !source_promotion_receipt_path.exists() {
         return Err(format!(
@@ -118,10 +124,13 @@ pub fn validate_repromotion_approval(
 
     let expected_source_promoted_import_receipt_sha256 =
         sha256_hex_file(source_promoted_import_receipt_path)?;
-    if approval.source_promoted_import_receipt_sha256 != expected_source_promoted_import_receipt_sha256 {
+    if approval.source_promoted_import_receipt_sha256
+        != expected_source_promoted_import_receipt_sha256
+    {
         return Err(format!(
             "re-promotion approval source import hash mismatch: expected={} actual={}",
-            expected_source_promoted_import_receipt_sha256, approval.source_promoted_import_receipt_sha256
+            expected_source_promoted_import_receipt_sha256,
+            approval.source_promoted_import_receipt_sha256
         )
         .into());
     }
@@ -162,7 +171,10 @@ pub fn publish_repromoted_import_receipt(
     fs::create_dir_all(workspace_current_dir)?;
     let destination = default_repromoted_import_receipt_path(workspace_current_dir);
     fs::copy(source_promoted_import_receipt_path, &destination)?;
-    write_repromotion_receipt(&default_repromotion_receipt_path(workspace_current_dir), receipt)?;
+    write_repromotion_receipt(
+        &default_repromotion_receipt_path(workspace_current_dir),
+        receipt,
+    )?;
     Ok(())
 }
 

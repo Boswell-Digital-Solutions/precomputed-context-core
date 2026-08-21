@@ -32,7 +32,11 @@ impl Display for EvidenceStoreError {
             Self::Serde(err) => write!(f, "serialization error: {err}"),
             Self::Validation(message) => write!(f, "validation error: {message}"),
             Self::AlreadyExists(path) => {
-                write!(f, "append-only write refused because file already exists: {}", path.display())
+                write!(
+                    f,
+                    "append-only write refused because file already exists: {}",
+                    path.display()
+                )
             }
         }
     }
@@ -133,7 +137,9 @@ impl EvidenceStore {
         &self,
         manifest: &ReplayBundleManifest,
     ) -> Result<PathBuf, EvidenceStoreError> {
-        manifest.validate().map_err(EvidenceStoreError::validation)?;
+        manifest
+            .validate()
+            .map_err(EvidenceStoreError::validation)?;
         self.write_record("replay_bundles", &manifest.replay_bundle_id, manifest)
     }
 
@@ -175,10 +181,7 @@ fn sanitize_file_component(value: &str) -> String {
 }
 
 fn write_new_file(path: &Path, bytes: &[u8]) -> Result<(), EvidenceStoreError> {
-    let mut file = OpenOptions::new()
-        .create_new(true)
-        .write(true)
-        .open(path)?;
+    let mut file = OpenOptions::new().create_new(true).write(true).open(path)?;
 
     file.write_all(bytes)?;
     file.write_all(b"\n")?;
@@ -193,9 +196,9 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use crate::durable_evidence::{
-        EvidenceAdmissionResult, EventReceiptRecord, ReplayBundleManifest,
+        EventReceiptRecord, EvidenceAdmissionResult, ReplayBundleManifest,
     };
-    use crate::enums::{EventType};
+    use crate::enums::EventType;
 
     use super::*;
 
@@ -296,9 +299,7 @@ mod tests {
             .expect("system time should be after epoch")
             .as_nanos();
 
-        env::temp_dir().join(format!(
-            "precomputed_context_core_{label}_{nanos}"
-        ))
+        env::temp_dir().join(format!("precomputed_context_core_{label}_{nanos}"))
     }
 
     fn cleanup_root(root: &Path) {

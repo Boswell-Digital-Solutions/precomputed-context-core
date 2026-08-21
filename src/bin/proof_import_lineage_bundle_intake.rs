@@ -1,8 +1,8 @@
 use precomputed_context_core::lineage_bundle_intake::{
     build_lineage_bundle_intake_receipt, default_intaken_bundle_dir,
-    default_lineage_bundle_intake_source_dir,
-    default_lineage_bundle_intake_receipt_path, default_lineage_bundle_intake_workspace_current,
-    load_lineage_bundle_intake_receipt, publish_intaken_lineage_bundle,
+    default_lineage_bundle_intake_receipt_path, default_lineage_bundle_intake_source_dir,
+    default_lineage_bundle_intake_workspace_current, load_lineage_bundle_intake_receipt,
+    publish_intaken_lineage_bundle,
 };
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -40,7 +40,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     publish_intaken_lineage_bundle(&source_bundle_dir, &workspace_current, &repeated_receipt)?;
     let repeated_intake_receipt_sha256 = sha256_file(&intake_receipt_path)?;
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice26_lineage_bundle_intake/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice26_lineage_bundle_intake/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_envelope_rejected, no_receipt_publication_on_missing_envelope) = {
@@ -48,8 +49,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         copy_dir(&source_bundle_dir, &scenario_dir)?;
         fs::remove_file(scenario_dir.join("lineage_bundle_envelope.json"))?;
         let receipt_path = default_lineage_bundle_intake_receipt_path(&scenario_dir);
-        let result = build_lineage_bundle_intake_receipt(&scenario_dir)
-            .and_then(|receipt| publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_bundle_intake_receipt(&scenario_dir).and_then(|receipt| {
+            publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt)
+        });
         (result.is_err(), !receipt_path.exists())
     };
 
@@ -58,8 +60,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         copy_dir(&source_bundle_dir, &scenario_dir)?;
         fs::write(scenario_dir.join("rogue.txt"), b"rogue")?;
         let receipt_path = default_lineage_bundle_intake_receipt_path(&scenario_dir);
-        let result = build_lineage_bundle_intake_receipt(&scenario_dir)
-            .and_then(|receipt| publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_bundle_intake_receipt(&scenario_dir).and_then(|receipt| {
+            publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt)
+        });
         (result.is_err(), !receipt_path.exists())
     };
 
@@ -68,8 +71,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         copy_dir(&source_bundle_dir, &scenario_dir)?;
         fs::write(scenario_dir.join("promotion_receipt.json"), b"tampered")?;
         let receipt_path = default_lineage_bundle_intake_receipt_path(&scenario_dir);
-        let result = build_lineage_bundle_intake_receipt(&scenario_dir)
-            .and_then(|receipt| publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_bundle_intake_receipt(&scenario_dir).and_then(|receipt| {
+            publish_intaken_lineage_bundle(&scenario_dir, &scenario_dir, &receipt)
+        });
         (result.is_err(), !receipt_path.exists())
     };
 

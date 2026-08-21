@@ -48,7 +48,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_consumer_handoff_builds_and_publishes() -> Result<(), Box<dyn Error>> {
@@ -60,7 +60,9 @@ fn valid_consumer_handoff_builds_and_publishes() -> Result<(), Box<dyn Error>> {
     publish_bounded_consumer_handoff(&activation_dir, &consumption_dir, &output_dir, &receipt)?;
 
     assert!(output_dir.join("handoff_receipt.json").exists());
-    assert!(output_dir.join("handoff_package/attestation_receipt.json").exists());
+    assert!(output_dir
+        .join("handoff_package/attestation_receipt.json")
+        .exists());
     Ok(())
 }
 
@@ -80,9 +82,7 @@ fn missing_attestation_receipt_fails_closed() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn make_prepared_consumption_workspace(
-    root: &PathBuf,
-) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
+fn make_prepared_consumption_workspace(root: &Path) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");
@@ -106,13 +106,17 @@ fn make_prepared_consumption_workspace(
     let contract_path = consumption_workspace.join("consumer_contract.json");
 
     fs::write(&zip_path, b"slice30 handoff package bytes")?;
-    fs::write(&sha_path, format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)))?;
+    fs::write(
+        &sha_path,
+        format!("{}  package.zip\n", sha256_hex(fs::read(&zip_path)?)),
+    )?;
     fs::write(&import_receipt_path, b"{\"import\":\"ok\"}")?;
 
     let policy = default_import_authorization_policy();
     write_import_authorization_policy(&policy_path, &policy)?;
 
-    let envelope = build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
+    let envelope =
+        build_signed_trust_envelope_for_zip(&zip_path, &sha_path, default_proof_signer())?;
     write_signed_trust_envelope(&envelope_path, &envelope)?;
 
     let authorization_receipt =
@@ -197,7 +201,8 @@ fn make_prepared_consumption_workspace(
         promotion_receipt_path: promotion_workspace.join("promotion_receipt.json"),
         rollback_receipt_path: revocation_workspace.join("rollback_receipt.json"),
         repromotion_receipt_path: repromotion_workspace.join("re_promotion_receipt.json"),
-        supersession_chain_receipt_path: supersession_workspace.join("supersession_chain_receipt.json"),
+        supersession_chain_receipt_path: supersession_workspace
+            .join("supersession_chain_receipt.json"),
     };
     let _ = publish_lineage_bundle(&bundle_workspace, &sources)?;
 
@@ -208,12 +213,17 @@ fn make_prepared_consumption_workspace(
     publish_rehydrated_lineage_state(&intake_workspace, &rehydrate_workspace, &rehydrate_receipt)?;
 
     let activation_receipt = build_lineage_activation_receipt(&rehydrate_workspace)?;
-    publish_activated_lineage_state(&rehydrate_workspace, &activation_workspace, &activation_receipt)?;
+    publish_activated_lineage_state(
+        &rehydrate_workspace,
+        &activation_workspace,
+        &activation_receipt,
+    )?;
 
     fs::create_dir_all(&consumption_workspace)?;
     let contract = default_active_lineage_consumer_contract();
     write_active_lineage_consumer_contract(&contract_path, &contract)?;
-    let attestation = build_active_lineage_attestation_receipt(&activation_workspace, &contract_path)?;
+    let attestation =
+        build_active_lineage_attestation_receipt(&activation_workspace, &contract_path)?;
     publish_active_lineage_attestation(&consumption_workspace, &contract, &attestation)?;
 
     Ok((activation_workspace, consumption_workspace))

@@ -47,8 +47,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         let scenario_dir = scenario_root.join("missing_intake_receipt");
         copy_dir(&source_dir, &scenario_dir)?;
         fs::remove_file(default_lineage_bundle_intake_receipt_path(&scenario_dir))?;
-        let result = build_lineage_rehydrate_receipt(&scenario_dir)
-            .and_then(|receipt| publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_rehydrate_receipt(&scenario_dir).and_then(|receipt| {
+            publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_rehydrate_receipt_path(&scenario_dir).exists(),
@@ -62,8 +63,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut value: serde_json::Value = serde_json::from_slice(&fs::read(&receipt_path)?)?;
         value["manifest_sha256"] = serde_json::Value::String("0".repeat(64));
         fs::write(&receipt_path, serde_json::to_vec_pretty(&value)?)?;
-        let result = build_lineage_rehydrate_receipt(&scenario_dir)
-            .and_then(|receipt| publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_rehydrate_receipt(&scenario_dir).and_then(|receipt| {
+            publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_rehydrate_receipt_path(&scenario_dir).exists(),
@@ -77,8 +79,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             scenario_dir.join("bundle/supersession_chain_receipt.json"),
             b"{\"tampered\":true}",
         )?;
-        let result = build_lineage_rehydrate_receipt(&scenario_dir)
-            .and_then(|receipt| publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_rehydrate_receipt(&scenario_dir).and_then(|receipt| {
+            publish_rehydrated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_rehydrate_receipt_path(&scenario_dir).exists(),
@@ -90,7 +93,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         rehydrate_receipt_file_name: file_name_string(&rehydrate_receipt_path)?,
         rehydrate_receipt_sha256: rehydrate_receipt_sha256.clone(),
         repeated_rehydrate_receipt_sha256: repeated_rehydrate_receipt_sha256.clone(),
-        stable_repeated_rehydrate_receipt: rehydrate_receipt_sha256 == repeated_rehydrate_receipt_sha256,
+        stable_repeated_rehydrate_receipt: rehydrate_receipt_sha256
+            == repeated_rehydrate_receipt_sha256,
         missing_intake_receipt_rejected,
         manifest_hash_mismatch_rejected,
         corrupted_supersession_rejected,
@@ -99,7 +103,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_receipt_publication_on_corrupted_supersession,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice27_lineage_rehydrate/lineage_rehydrate_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice27_lineage_rehydrate/lineage_rehydrate_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

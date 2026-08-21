@@ -13,8 +13,7 @@ use precomputed_context_core::fixture_support::{
 
 #[cfg(not(feature = "test-support"))]
 use precomputed_context_core::proof::{
-    authority_record_changed_event_for_test as authority_record_changed_event,
-    source_deleted_event,
+    authority_record_changed_event_for_test as authority_record_changed_event, source_deleted_event,
 };
 
 use precomputed_context_core::{
@@ -80,7 +79,7 @@ fn source_deleted_trigger_invalidates_artifact_and_downgrades_packet() {
     assert!(artifact_outcome.remediation_required);
 
     let packet_outcome =
-        apply_packet_constituent_change(&packet, &[artifact_outcome.artifact.clone()]);
+        apply_packet_constituent_change(&packet, std::slice::from_ref(&artifact_outcome.artifact));
 
     assert_eq!(packet_outcome.affected_artifact_ids, vec!["art-001"]);
     assert!(packet_outcome.reevaluation_required);
@@ -112,7 +111,7 @@ fn authority_record_changed_invalidates_artifact_and_downgrades_packet() {
     assert!(artifact_outcome.remediation_required);
 
     let packet_outcome =
-        apply_packet_constituent_change(&packet, &[artifact_outcome.artifact.clone()]);
+        apply_packet_constituent_change(&packet, std::slice::from_ref(&artifact_outcome.artifact));
 
     assert_eq!(packet_outcome.affected_artifact_ids, vec!["art-001"]);
     assert!(packet_outcome.reevaluation_required);

@@ -28,7 +28,8 @@ fn run() -> Result<(), String> {
     ensure_command_available("touch")?;
     ensure_command_available("sha256sum")?;
 
-    let repo_root = env::current_dir().map_err(|e| format!("failed to read current directory: {e}"))?;
+    let repo_root =
+        env::current_dir().map_err(|e| format!("failed to read current directory: {e}"))?;
     let export_dir = repo_root.join(EXPORT_DIR);
     validate_export_dir(&export_dir)?;
 
@@ -119,9 +120,9 @@ fn collect_relative_files(root: &Path) -> Result<Vec<PathBuf>, String> {
             if metadata.is_dir() {
                 walk(root, &path, out)?;
             } else if metadata.is_file() {
-                let relative = path
-                    .strip_prefix(root)
-                    .map_err(|e| format!("failed to derive relative path for {}: {e}", path.display()))?;
+                let relative = path.strip_prefix(root).map_err(|e| {
+                    format!("failed to derive relative path for {}: {e}", path.display())
+                })?;
                 out.push(relative.to_path_buf());
             }
         }
@@ -146,12 +147,20 @@ fn make_stage_root(repo_root: &Path) -> Result<PathBuf, String> {
         .join("proof_artifacts")
         .join(format!(".slice14_stage_{}_{}", process::id(), stamp));
 
-    fs::create_dir_all(&stage_root)
-        .map_err(|e| format!("failed to create stage directory {}: {e}", stage_root.display()))?;
+    fs::create_dir_all(&stage_root).map_err(|e| {
+        format!(
+            "failed to create stage directory {}: {e}",
+            stage_root.display()
+        )
+    })?;
     Ok(stage_root)
 }
 
-fn copy_stage_files(export_dir: &Path, stage_root: &Path, relative_files: &[PathBuf]) -> Result<(), String> {
+fn copy_stage_files(
+    export_dir: &Path,
+    stage_root: &Path,
+    relative_files: &[PathBuf],
+) -> Result<(), String> {
     for relative in relative_files {
         let source_path = export_dir.join(relative);
         let destination_path = stage_root.join(relative);
@@ -193,7 +202,11 @@ fn normalize_stage_timestamps(stage_root: &Path, relative_files: &[PathBuf]) -> 
     Ok(())
 }
 
-fn create_zip_archive(stage_root: &Path, relative_files: &[PathBuf], zip_path: &Path) -> Result<(), String> {
+fn create_zip_archive(
+    stage_root: &Path,
+    relative_files: &[PathBuf],
+    zip_path: &Path,
+) -> Result<(), String> {
     let mut command = Command::new("zip");
     command.current_dir(stage_root);
     command.arg("-q");
@@ -211,7 +224,10 @@ fn create_zip_archive(stage_root: &Path, relative_files: &[PathBuf], zip_path: &
     if status.success() {
         Ok(())
     } else {
-        Err(format!("zip returned non-zero status for {}", zip_path.display()))
+        Err(format!(
+            "zip returned non-zero status for {}",
+            zip_path.display()
+        ))
     }
 }
 
@@ -219,7 +235,12 @@ fn write_sha256_file(zip_path: &Path, sha_path: &Path) -> Result<(), String> {
     let output = Command::new("sha256sum")
         .arg(zip_path)
         .output()
-        .map_err(|e| format!("failed to execute sha256sum for {}: {e}", zip_path.display()))?;
+        .map_err(|e| {
+            format!(
+                "failed to execute sha256sum for {}: {e}",
+                zip_path.display()
+            )
+        })?;
 
     if !output.status.success() {
         return Err(format!(
@@ -230,10 +251,12 @@ fn write_sha256_file(zip_path: &Path, sha_path: &Path) -> Result<(), String> {
 
     let stdout = String::from_utf8(output.stdout)
         .map_err(|e| format!("sha256sum produced invalid UTF-8: {e}"))?;
-    let digest = stdout
-        .split_whitespace()
-        .next()
-        .ok_or_else(|| format!("sha256sum did not return a digest for {}", zip_path.display()))?;
+    let digest = stdout.split_whitespace().next().ok_or_else(|| {
+        format!(
+            "sha256sum did not return a digest for {}",
+            zip_path.display()
+        )
+    })?;
 
     let file_name = zip_path
         .file_name()

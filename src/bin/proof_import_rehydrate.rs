@@ -42,7 +42,10 @@ fn run() -> Result<(), String> {
     }
 
     if !config.sha_path.is_file() {
-        return Err(format!("missing sha256 file: {}", config.sha_path.display()));
+        return Err(format!(
+            "missing sha256 file: {}",
+            config.sha_path.display()
+        ));
     }
 
     let stage_path = stage_path_for(&config.workspace_path);
@@ -56,8 +59,12 @@ fn run() -> Result<(), String> {
 
     cleanup_dir(&config.workspace_path)?;
     if let Some(parent) = config.workspace_path.parent() {
-        fs::create_dir_all(parent)
-            .map_err(|e| format!("failed to create workspace parent {}: {e}", parent.display()))?;
+        fs::create_dir_all(parent).map_err(|e| {
+            format!(
+                "failed to create workspace parent {}: {e}",
+                parent.display()
+            )
+        })?;
     }
 
     fs::rename(&stage_path, &config.workspace_path).map_err(|e| {
@@ -99,8 +106,8 @@ fn run_inner(config: &Config, stage_path: &Path) -> Result<(), String> {
     let package_root = stage_path.join("package");
     extract_archive(&config.zip_path, &package_root)?;
 
-    let package_index_text = fs::read_to_string(package_root.join("package_index.json"))
-        .map_err(|e| {
+    let package_index_text =
+        fs::read_to_string(package_root.join("package_index.json")).map_err(|e| {
             format!(
                 "failed to read extracted package_index.json from {}: {e}",
                 package_root.display()
@@ -199,7 +206,12 @@ fn compute_sha256(zip_path: &Path) -> Result<String, String> {
     let output = Command::new("sha256sum")
         .arg(zip_path)
         .output()
-        .map_err(|e| format!("failed to execute sha256sum for {}: {e}", zip_path.display()))?;
+        .map_err(|e| {
+            format!(
+                "failed to execute sha256sum for {}: {e}",
+                zip_path.display()
+            )
+        })?;
 
     if !output.status.success() {
         return Err(format!(
@@ -210,10 +222,12 @@ fn compute_sha256(zip_path: &Path) -> Result<String, String> {
 
     let stdout = String::from_utf8(output.stdout)
         .map_err(|e| format!("sha256sum produced invalid UTF-8: {e}"))?;
-    let digest = stdout
-        .split_whitespace()
-        .next()
-        .ok_or_else(|| format!("sha256sum did not return a digest for {}", zip_path.display()))?;
+    let digest = stdout.split_whitespace().next().ok_or_else(|| {
+        format!(
+            "sha256sum did not return a digest for {}",
+            zip_path.display()
+        )
+    })?;
 
     Ok(digest.to_ascii_lowercase())
 }
@@ -223,7 +237,12 @@ fn list_archive_members(zip_path: &Path) -> Result<Vec<String>, String> {
         .arg("-Z1")
         .arg(zip_path)
         .output()
-        .map_err(|e| format!("failed to list archive members for {}: {e}", zip_path.display()))?;
+        .map_err(|e| {
+            format!(
+                "failed to list archive members for {}: {e}",
+                zip_path.display()
+            )
+        })?;
 
     if !output.status.success() {
         return Err(format!(
@@ -262,8 +281,12 @@ fn validate_archive_member_set(members: &[String]) -> Result<(), String> {
 }
 
 fn extract_archive(zip_path: &Path, package_root: &Path) -> Result<(), String> {
-    fs::create_dir_all(package_root)
-        .map_err(|e| format!("failed to create package root {}: {e}", package_root.display()))?;
+    fs::create_dir_all(package_root).map_err(|e| {
+        format!(
+            "failed to create package root {}: {e}",
+            package_root.display()
+        )
+    })?;
 
     let status = Command::new("unzip")
         .arg("-q")
@@ -302,8 +325,12 @@ fn rehydrate_workspace(package_root: &Path, rehydrated_root: &Path) -> Result<()
     let flow_root = rehydrated_root.join("governed_flow");
     let package_meta_root = rehydrated_root.join("package_meta");
 
-    fs::create_dir_all(&replay_root)
-        .map_err(|e| format!("failed to create replay root {}: {e}", replay_root.display()))?;
+    fs::create_dir_all(&replay_root).map_err(|e| {
+        format!(
+            "failed to create replay root {}: {e}",
+            replay_root.display()
+        )
+    })?;
     fs::create_dir_all(&flow_root)
         .map_err(|e| format!("failed to create flow root {}: {e}", flow_root.display()))?;
     fs::create_dir_all(&package_meta_root).map_err(|e| {
@@ -485,8 +512,7 @@ mod tests {
             "replay_report.json".to_string(),
         ];
 
-        let error =
-            validate_archive_member_set(&members).expect_err("missing member should fail");
+        let error = validate_archive_member_set(&members).expect_err("missing member should fail");
         assert!(error.contains("archive member set mismatch"));
     }
 
@@ -509,7 +535,7 @@ mod tests {
                 workspace_path: PathBuf::from(DEFAULT_WORKSPACE_PATH),
             },
             "abc123",
-            &vec![
+            &[
                 "README.txt".to_string(),
                 "governed_flow_report.json".to_string(),
                 "package_index.json".to_string(),

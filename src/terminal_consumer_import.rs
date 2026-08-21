@@ -49,7 +49,8 @@ pub fn validate_terminal_consumer_source(source_dir: &Path) -> Result<(), Box<dy
         return Err("sealed release receipt member count mismatch".into());
     }
 
-    let manifest = load_terminal_boundary_manifest(&default_terminal_boundary_manifest_path(source_dir))?;
+    let manifest =
+        load_terminal_boundary_manifest(&default_terminal_boundary_manifest_path(source_dir))?;
     if manifest.entries.len() != 6 {
         return Err("terminal boundary manifest entry count mismatch".into());
     }
@@ -93,7 +94,8 @@ pub fn validate_terminal_consumer_source(source_dir: &Path) -> Result<(), Box<dy
         }
     }
 
-    let attestation = load_release_attestation_receipt(&bundle_dir.join("release_attestation_receipt.json"))?;
+    let attestation =
+        load_release_attestation_receipt(&bundle_dir.join("release_attestation_receipt.json"))?;
     if !attestation.attested_for_handoff {
         return Err("release attestation receipt was not attested for handoff".into());
     }
@@ -140,7 +142,10 @@ pub fn publish_terminal_consumer_import(
         "release_readiness_receipt.json",
         "return_channel_closure_receipt.json",
     ] {
-        fs::copy(source_bundle_dir.join(name), validated_bundle_dir.join(name))?;
+        fs::copy(
+            source_bundle_dir.join(name),
+            validated_bundle_dir.join(name),
+        )?;
     }
     write_terminal_consumer_import_receipt(
         &default_terminal_consumer_import_receipt_path(workspace_current_dir),

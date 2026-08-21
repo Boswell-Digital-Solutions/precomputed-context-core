@@ -122,7 +122,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         stable_repeated_sealed_release_receipt: sealed_release_receipt_sha256
             == repeated_sealed_release_receipt_sha256,
         terminal_boundary_manifest_sha256: terminal_boundary_manifest_sha256.clone(),
-        repeated_terminal_boundary_manifest_sha256: repeated_terminal_boundary_manifest_sha256.clone(),
+        repeated_terminal_boundary_manifest_sha256: repeated_terminal_boundary_manifest_sha256
+            .clone(),
         stable_repeated_terminal_boundary_manifest: terminal_boundary_manifest_sha256
             == repeated_terminal_boundary_manifest_sha256,
         missing_attestation_receipt_rejected,

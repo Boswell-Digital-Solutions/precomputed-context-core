@@ -55,7 +55,9 @@ pub fn default_slice23_repromotion_receipt_path() -> PathBuf {
 }
 
 pub fn default_slice24_supersession_chain_receipt_path() -> PathBuf {
-    PathBuf::from("target/proof_artifacts/slice24_supersession/current/supersession_chain_receipt.json")
+    PathBuf::from(
+        "target/proof_artifacts/slice24_supersession/current/supersession_chain_receipt.json",
+    )
 }
 
 pub fn default_lineage_bundle_workspace_current() -> PathBuf {
@@ -86,8 +88,16 @@ pub fn publish_lineage_bundle(
     fs::create_dir_all(workspace_current_dir)?;
 
     let source_map = vec![
-        ("promotion_receipt", "promotion_receipt.json", &sources.promotion_receipt_path),
-        ("rollback_receipt", "rollback_receipt.json", &sources.rollback_receipt_path),
+        (
+            "promotion_receipt",
+            "promotion_receipt.json",
+            &sources.promotion_receipt_path,
+        ),
+        (
+            "rollback_receipt",
+            "rollback_receipt.json",
+            &sources.rollback_receipt_path,
+        ),
         (
             "re_promotion_receipt",
             "re_promotion_receipt.json",
@@ -122,7 +132,8 @@ pub fn publish_lineage_bundle(
     let manifest_path = default_lineage_bundle_manifest_path(workspace_current_dir);
     write_lineage_bundle_manifest(&manifest_path, &manifest)?;
 
-    let envelope = build_lineage_bundle_envelope(&manifest_path, default_lineage_bundle_signer_id())?;
+    let envelope =
+        build_lineage_bundle_envelope(&manifest_path, default_lineage_bundle_signer_id())?;
     let envelope_path = default_lineage_bundle_envelope_path(workspace_current_dir);
     write_lineage_bundle_envelope(&envelope_path, &envelope)?;
 
@@ -192,7 +203,8 @@ pub fn verify_lineage_bundle(workspace_current_dir: &Path) -> Result<(), Box<dyn
         .into());
     }
 
-    let expected_signature = compute_lineage_bundle_signature(&envelope.signer_id, &envelope.manifest_sha256);
+    let expected_signature =
+        compute_lineage_bundle_signature(&envelope.signer_id, &envelope.manifest_sha256);
     if envelope.signature != expected_signature {
         return Err("lineage bundle envelope signature mismatch".into());
     }

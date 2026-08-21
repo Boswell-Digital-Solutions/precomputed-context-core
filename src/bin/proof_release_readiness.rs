@@ -134,8 +134,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_release_receipt_continuity_tamper,
     };
 
-    let report_path =
-        PathBuf::from("target/proof_artifacts/slice33_release_readiness/release_readiness_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice33_release_readiness/release_readiness_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

@@ -39,15 +39,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     publish_activated_lineage_state(&source_dir, &workspace_current, &repeated_receipt)?;
     let repeated_activation_receipt_sha256 = sha256_file(&activation_receipt_path)?;
 
-    let scenario_root = PathBuf::from("target/proof_artifacts/slice28_lineage_activation/scenarios");
+    let scenario_root =
+        PathBuf::from("target/proof_artifacts/slice28_lineage_activation/scenarios");
     reset_dir(&scenario_root)?;
 
     let (missing_rehydrate_receipt_rejected, no_receipt_publication_on_missing_rehydrate_receipt) = {
         let scenario_dir = scenario_root.join("missing_rehydrate_receipt");
         copy_dir(&source_dir, &scenario_dir)?;
         fs::remove_file(scenario_dir.join("rehydrate_receipt.json"))?;
-        let result = build_lineage_activation_receipt(&scenario_dir)
-            .and_then(|receipt| publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_activation_receipt(&scenario_dir).and_then(|receipt| {
+            publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_activation_receipt_path(&scenario_dir).exists(),
@@ -61,20 +63,25 @@ fn main() -> Result<(), Box<dyn Error>> {
             scenario_dir.join("lineage_state/supersession_chain_receipt.json"),
             b"{\"tampered\":true}",
         )?;
-        let result = build_lineage_activation_receipt(&scenario_dir)
-            .and_then(|receipt| publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_activation_receipt(&scenario_dir).and_then(|receipt| {
+            publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_activation_receipt_path(&scenario_dir).exists(),
         )
     };
 
-    let (missing_repromotion_receipt_rejected, no_receipt_publication_on_missing_repromotion_receipt) = {
+    let (
+        missing_repromotion_receipt_rejected,
+        no_receipt_publication_on_missing_repromotion_receipt,
+    ) = {
         let scenario_dir = scenario_root.join("missing_repromotion_receipt");
         copy_dir(&source_dir, &scenario_dir)?;
         fs::remove_file(scenario_dir.join("lineage_state/re_promotion_receipt.json"))?;
-        let result = build_lineage_activation_receipt(&scenario_dir)
-            .and_then(|receipt| publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt));
+        let result = build_lineage_activation_receipt(&scenario_dir).and_then(|receipt| {
+            publish_activated_lineage_state(&scenario_dir, &scenario_dir, &receipt)
+        });
         (
             result.is_err(),
             !default_lineage_activation_receipt_path(&scenario_dir).exists(),
@@ -86,7 +93,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         activation_receipt_file_name: file_name_string(&activation_receipt_path)?,
         activation_receipt_sha256: activation_receipt_sha256.clone(),
         repeated_activation_receipt_sha256: repeated_activation_receipt_sha256.clone(),
-        stable_repeated_activation_receipt: activation_receipt_sha256 == repeated_activation_receipt_sha256,
+        stable_repeated_activation_receipt: activation_receipt_sha256
+            == repeated_activation_receipt_sha256,
         missing_rehydrate_receipt_rejected,
         corrupted_supersession_rejected,
         missing_repromotion_receipt_rejected,
@@ -95,7 +103,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_receipt_publication_on_missing_repromotion_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice28_lineage_activation/lineage_activation_report.json");
+    let report_path = PathBuf::from(
+        "target/proof_artifacts/slice28_lineage_activation/lineage_activation_report.json",
+    );
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

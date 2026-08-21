@@ -65,14 +65,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         (result.is_err(), !published)
     };
 
-    let (repromotion_rollback_hash_mismatch_rejected, no_publication_on_repromotion_rollback_hash_mismatch) = {
+    let (
+        repromotion_rollback_hash_mismatch_rejected,
+        no_publication_on_repromotion_rollback_hash_mismatch,
+    ) = {
         let scenario_dir = scenario_root.join("repromotion_rollback_hash_mismatch");
         fs::create_dir_all(&scenario_dir)?;
         let scenario_repromotion_path = scenario_dir.join("re_promotion_receipt.json");
         let mut repromotion_value: serde_json::Value =
             serde_json::from_slice(&fs::read(&repromotion_receipt_path)?)?;
         repromotion_value["rollback_receipt_sha256"] = serde_json::Value::String("0".repeat(64));
-        fs::write(&scenario_repromotion_path, serde_json::to_vec_pretty(&repromotion_value)?)?;
+        fs::write(
+            &scenario_repromotion_path,
+            serde_json::to_vec_pretty(&repromotion_value)?,
+        )?;
         let result = build_supersession_chain_receipt(
             &promotion_receipt_path,
             &rollback_receipt_path,
@@ -108,7 +114,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_missing_repromotion_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice24_supersession/supersession_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice24_supersession/supersession_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }

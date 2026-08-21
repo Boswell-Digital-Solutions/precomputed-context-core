@@ -40,7 +40,10 @@ fn run() -> Result<(), String> {
     }
 
     if !config.sha_path.is_file() {
-        return Err(format!("missing sha256 file: {}", config.sha_path.display()));
+        return Err(format!(
+            "missing sha256 file: {}",
+            config.sha_path.display()
+        ));
     }
 
     let expected_digest = read_expected_digest(&config.sha_path, &config.zip_path)?;
@@ -143,7 +146,12 @@ fn compute_sha256(zip_path: &Path) -> Result<String, String> {
     let output = Command::new("sha256sum")
         .arg(zip_path)
         .output()
-        .map_err(|e| format!("failed to execute sha256sum for {}: {e}", zip_path.display()))?;
+        .map_err(|e| {
+            format!(
+                "failed to execute sha256sum for {}: {e}",
+                zip_path.display()
+            )
+        })?;
 
     if !output.status.success() {
         return Err(format!(
@@ -154,10 +162,12 @@ fn compute_sha256(zip_path: &Path) -> Result<String, String> {
 
     let stdout = String::from_utf8(output.stdout)
         .map_err(|e| format!("sha256sum produced invalid UTF-8: {e}"))?;
-    let digest = stdout
-        .split_whitespace()
-        .next()
-        .ok_or_else(|| format!("sha256sum did not return a digest for {}", zip_path.display()))?;
+    let digest = stdout.split_whitespace().next().ok_or_else(|| {
+        format!(
+            "sha256sum did not return a digest for {}",
+            zip_path.display()
+        )
+    })?;
 
     Ok(digest.to_ascii_lowercase())
 }
@@ -167,7 +177,12 @@ fn list_archive_members(zip_path: &Path) -> Result<Vec<String>, String> {
         .arg("-Z1")
         .arg(zip_path)
         .output()
-        .map_err(|e| format!("failed to list archive members for {}: {e}", zip_path.display()))?;
+        .map_err(|e| {
+            format!(
+                "failed to list archive members for {}: {e}",
+                zip_path.display()
+            )
+        })?;
 
     if !output.status.success() {
         return Err(format!(

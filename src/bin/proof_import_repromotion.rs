@@ -112,7 +112,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         (result.is_err(), !published)
     };
 
-    let (missing_source_promoted_import_receipt_rejected, no_publication_on_missing_source_promoted_import_receipt) = {
+    let (
+        missing_source_promoted_import_receipt_rejected,
+        no_publication_on_missing_source_promoted_import_receipt,
+    ) = {
         let scenario_dir = scenario_root.join("missing_source_promoted_import_receipt");
         fs::create_dir_all(&scenario_dir)?;
         let scenario_approval_path = scenario_dir.join("operator_reapproval.json");
@@ -149,7 +152,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         no_publication_on_missing_source_promoted_import_receipt,
     };
 
-    let report_path = PathBuf::from("target/proof_artifacts/slice23_repromotion/repromotion_report.json");
+    let report_path =
+        PathBuf::from("target/proof_artifacts/slice23_repromotion/repromotion_report.json");
     if let Some(parent) = report_path.parent() {
         fs::create_dir_all(parent)?;
     }
