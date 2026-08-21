@@ -35,6 +35,20 @@ that only compares two runs of the same build cannot notice a hash that moved
 once and then stayed put, so the values captured before the change are asserted
 literally.
 
+### Lint hygiene
+
+`bash scripts/verify_lint.sh` runs `cargo fmt --check` and
+`cargo clippy --all-targets -- -D warnings`. It proves nothing about behaviour
+and everything about whether the next reformat will be a large diff that a real
+change can hide inside — this repository had accumulated 83 unformatted files and
+35 clippy warnings before either command was run in anger, which is what happens
+when nothing checks.
+
+It is deliberately not folded into a slice verifier: those prove contracts, and
+this does not. A new warning fails the gate rather than joining a pile nobody
+reads; where a lint is genuinely wrong for the code, silence it at the site with
+a reason, which is a decision on the record.
+
 Slice 38's verifier also asserts that its equivalence sweep **actually swept**.
 The proof reports how many age pairs it compared, and a report claiming zero
 disagreements over zero comparisons is the shape a silently-skipped check takes —
