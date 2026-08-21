@@ -339,13 +339,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     // 4b. Nothing that assembled before this slice assembles differently.
     let phase1 = assemble_context(&phase1_request())?;
     let continuity = assemble_context(&continuity_request())?;
-    let preexisting_hashes_unmoved = phase1.manifest.bundle_hash == GOLDEN_PHASE1_HASH
-        && continuity.manifest.bundle_hash == GOLDEN_CONTINUITY_HASH;
+    let preexisting_hashes_unmoved = phase1.manifest.legacy_bundle_hash == GOLDEN_PHASE1_HASH
+        && continuity.manifest.legacy_bundle_hash == GOLDEN_CONTINUITY_HASH;
     if !preexisting_hashes_unmoved {
         return Err(format!(
             "a pre-existing bundle hash moved: phase1={} (expected {GOLDEN_PHASE1_HASH}), \
              continuity={} (expected {GOLDEN_CONTINUITY_HASH})",
-            phase1.manifest.bundle_hash, continuity.manifest.bundle_hash
+            phase1.manifest.legacy_bundle_hash, continuity.manifest.legacy_bundle_hash
         )
         .into());
     }

@@ -77,7 +77,11 @@ fn continuity_assembly_is_deterministic_and_returns_manifest() {
     assert_eq!(first.payload_refs, second.payload_refs);
     assert_eq!(first.payload_refs.len(), 4);
     // context_bundle_id prefix contract.
-    assert!(first.manifest.context_bundle_id.starts_with("ctxb_"));
+    // Tagged with the algorithm that produced it, and still carrying the
+    // identity it would have had before Slice 39 so a pack stored under the old
+    // scheme stays findable.
+    assert!(first.manifest.context_bundle_id.starts_with("ctxb.sha256."));
+    assert!(first.manifest.legacy_context_bundle_id.starts_with("ctxb_"));
 }
 
 #[test]

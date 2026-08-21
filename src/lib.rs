@@ -24,7 +24,7 @@ pub use context_assembly::{
     assemble_context, AuthorityState, ClassFreshnessOverride, ContextAssemblyError,
     ContextAssemblyOutput, ContextAssemblyRequest, ContextBundleManifest, FreshnessBand,
     FreshnessPolicy, OverrideDecision, OverridePosture, ReplayEligibility, SourceClass,
-    SourceInput, SourceInventoryEntry, SourceProvenance, TargetRefs,
+    SourceInput, SourceInventoryEntry, SourceProvenance, TargetRefs, ID_PREFIX, LEGACY_ID_PREFIX,
 };
 pub use contracts::{
     KeyFilePacketContract, RepoNavigationAssistPacketContract, RepoNavigationMapContract,

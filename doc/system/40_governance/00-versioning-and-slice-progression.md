@@ -19,6 +19,13 @@ does not disturb it: the two bundle hashes captured before the slice are asserte
 as goldens, so a context bundle assembled under the earlier slices assembles
 identically under this one.
 
+Slice 39 replaces the bundle identity with an algorithm-tagged SHA-256 while
+keeping the FNV-1a one it had, because DataForge's `context_packs` keys on the id
+and never removes rows — so resolution across both forms is the steady state
+rather than a transitional phase. The goldens moved to `legacy_bundle_hash` and
+are asserted there, which is the stronger claim: it proves a pack stored under
+the old id is still findable.
+
 Slice 38 gives `FreshnessPolicy` per-class limits, closing the gap Slice 37 named
 and worked around. It carries the same goldens forward and adds one of its own
 kind: the freshness-band rule was rewritten, and the rewrite is proven equivalent

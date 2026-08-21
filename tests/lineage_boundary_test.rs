@@ -57,6 +57,8 @@ fn sample_manifest() -> ContextBundleManifest {
     ContextBundleManifest {
         context_bundle_id: "cb-001".to_string(),
         bundle_hash: "deadbeefcafef00d".to_string(),
+        legacy_context_bundle_id: "ctxb_deadbeefcafef00d".to_string(),
+        legacy_bundle_hash: "deadbeefcafef00d".to_string(),
         source_inventory: Vec::new(),
         freshness_band: FreshnessBand::Fresh,
         override_decision: OverrideDecision::NoOverridePresent,

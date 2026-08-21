@@ -307,21 +307,21 @@ fn continuity_request() -> ContextAssemblyRequest {
 fn no_existing_bundle_hash_moved() {
     let phase1 = assemble_context(&phase1_base_request()).expect("phase-1 assembly");
     assert_eq!(
-        phase1.manifest.bundle_hash, GOLDEN_PHASE1_HASH,
+        phase1.manifest.legacy_bundle_hash, GOLDEN_PHASE1_HASH,
         "a manuscript bundle assembled before this slice must hash identically after it"
     );
     assert_eq!(
-        phase1.manifest.context_bundle_id,
+        phase1.manifest.legacy_context_bundle_id,
         format!("ctxb_{GOLDEN_PHASE1_HASH}")
     );
 
     let continuity = assemble_context(&continuity_request()).expect("continuity assembly");
     assert_eq!(
-        continuity.manifest.bundle_hash, GOLDEN_CONTINUITY_HASH,
+        continuity.manifest.legacy_bundle_hash, GOLDEN_CONTINUITY_HASH,
         "the continuity profile's replay identity must survive this slice"
     );
     assert_eq!(
-        continuity.manifest.context_bundle_id,
+        continuity.manifest.legacy_context_bundle_id,
         format!("ctxb_{GOLDEN_CONTINUITY_HASH}")
     );
 }
