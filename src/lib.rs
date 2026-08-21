@@ -25,7 +25,8 @@ pub use contracts::{
     ValidationCommandPacketContract,
 };
 pub use context_assembly::{
-    assemble_context, AuthorityState, ContextAssemblyError, ContextAssemblyOutput,
+    assemble_context, AuthorityState, ClassFreshnessOverride, ContextAssemblyError,
+    ContextAssemblyOutput,
     ContextAssemblyRequest, ContextBundleManifest, FreshnessBand, FreshnessPolicy,
     OverrideDecision, OverridePosture, ReplayEligibility, SourceClass, SourceInput,
     SourceInventoryEntry, SourceProvenance, TargetRefs,

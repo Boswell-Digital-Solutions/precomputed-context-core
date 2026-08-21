@@ -39,9 +39,7 @@ fn continuity_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 120,
-        },
+        freshness_policy: FreshnessPolicy::uniform(120),
         override_posture: OverridePosture::DisallowAll,
         sources: vec![
             SourceInput {

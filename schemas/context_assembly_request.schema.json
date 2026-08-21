@@ -9,8 +9,36 @@
       ],
       "type": "string"
     },
-    "FreshnessPolicy": {
+    "ClassFreshnessOverride": {
+      "description": "One class's own staleness limit, overriding the bundle-wide default.\n\nA list rather than a map, deliberately: a map's iteration order is not stable, and this repository binds identity to serialized form in enough places that an unordered collection is a latent replay hazard even where it is not hashed today.",
       "properties": {
+        "max_source_age_minutes": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "source_class": {
+          "$ref": "#/definitions/SourceClass"
+        }
+      },
+      "required": [
+        "max_source_age_minutes",
+        "source_class"
+      ],
+      "type": "object"
+    },
+    "FreshnessPolicy": {
+      "description": "How old a source may be before it is refused.\n\n`max_source_age_minutes` governs every class that has no override, and by itself it is the whole policy — which was the problem. Source classes have different natural lifetimes: an active scene is stale in minutes, and a governed memory fact earns its value by persisting. One number set for scenes refuses every memory fact; set for memory it admits a stale scene.\n\n`class_overrides` is `Option` and skipped when absent, so a policy that never mentions it serializes byte-identically to one written before this field existed, and behaves identically too. Nothing that assembles today changes.",
+      "properties": {
+        "class_overrides": {
+          "items": {
+            "$ref": "#/definitions/ClassFreshnessOverride"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "max_source_age_minutes": {
           "format": "uint64",
           "minimum": 0.0,
