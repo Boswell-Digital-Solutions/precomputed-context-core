@@ -67,7 +67,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_terminal_consumer_import_builds_and_publishes() -> Result<(), Box<dyn Error>> {
@@ -108,7 +108,7 @@ fn manifest_hash_tamper_fails_closed() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn make_prepared_sealed_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+fn make_prepared_sealed_workspace(root: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let attestation_dir = make_prepared_attestation_workspace(root)?;
     let sealed_dir = root.join("sealed_workspace/current");
     let manifest = build_terminal_boundary_manifest(&attestation_dir)?;
@@ -117,7 +117,7 @@ fn make_prepared_sealed_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Err
     Ok(sealed_dir)
 }
 
-fn make_prepared_attestation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+fn make_prepared_attestation_workspace(root: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let (release_dir, readiness_dir) = make_prepared_readiness_workspace(root)?;
     let attestation_dir = root.join("attestation_workspace/current");
     let receipt = build_release_attestation_receipt(&release_dir, &readiness_dir)?;
@@ -125,7 +125,7 @@ fn make_prepared_attestation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dy
     Ok(attestation_dir)
 }
 
-fn make_prepared_readiness_workspace(root: &PathBuf) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
+fn make_prepared_readiness_workspace(root: &Path) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
     let release_dir = make_prepared_release_workspace(root)?;
     let readiness_dir = root.join("readiness_workspace/current");
     let readiness = build_release_readiness_receipt(&release_dir)?;
@@ -134,7 +134,7 @@ fn make_prepared_readiness_workspace(root: &PathBuf) -> Result<(PathBuf, PathBuf
     Ok((release_dir, readiness_dir))
 }
 
-fn make_prepared_release_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+fn make_prepared_release_workspace(root: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let (handoff_dir, ack_dir) = make_prepared_ack_workspace(root)?;
     let release_dir = root.join("downstream_release/current");
     let receipt = build_downstream_release_receipt(&handoff_dir, &ack_dir)?;
@@ -142,7 +142,7 @@ fn make_prepared_release_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Er
     Ok(release_dir)
 }
 
-fn make_prepared_ack_workspace(root: &PathBuf) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
+fn make_prepared_ack_workspace(root: &Path) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
     let (activation_workspace, consumption_workspace) = make_prepared_consumption_workspace(root)?;
     let handoff_workspace = root.join("handoff_workspace/current");
     let ack_workspace = root.join("ack_workspace/current");
@@ -164,9 +164,7 @@ fn make_prepared_ack_workspace(root: &PathBuf) -> Result<(PathBuf, PathBuf), Box
     Ok((handoff_workspace, ack_workspace))
 }
 
-fn make_prepared_consumption_workspace(
-    root: &PathBuf,
-) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
+fn make_prepared_consumption_workspace(root: &Path) -> Result<(PathBuf, PathBuf), Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");

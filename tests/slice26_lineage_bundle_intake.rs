@@ -35,7 +35,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_lineage_bundle_intake_builds_and_publishes() -> Result<(), Box<dyn Error>> {
@@ -65,7 +65,7 @@ fn missing_envelope_fails_closed() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn make_prepared_lineage_bundle(root: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+fn make_prepared_lineage_bundle(root: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");

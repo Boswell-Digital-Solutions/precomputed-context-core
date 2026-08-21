@@ -19,7 +19,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_approval_allows_promotion() -> Result<(), Box<dyn Error>> {
@@ -73,7 +73,7 @@ struct PreparedGateSurface {
     gated_import_receipt_path: PathBuf,
 }
 
-fn make_prepared_gate_surface(root: &PathBuf) -> Result<PreparedGateSurface, Box<dyn Error>> {
+fn make_prepared_gate_surface(root: &Path) -> Result<PreparedGateSurface, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");

@@ -14,7 +14,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_authorization_artifacts_allow_rehydrate_gate() -> Result<(), Box<dyn Error>> {
@@ -70,7 +70,7 @@ struct ValidBundlePaths {
     import_receipt_path: PathBuf,
 }
 
-fn make_valid_bundle(root: &PathBuf) -> Result<ValidBundlePaths, Box<dyn Error>> {
+fn make_valid_bundle(root: &Path) -> Result<ValidBundlePaths, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");

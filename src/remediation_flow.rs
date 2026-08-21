@@ -126,10 +126,7 @@ pub fn plan_packet_remediation(
         });
     }
 
-    if constituent_lifecycle
-        .iter()
-        .any(|state| *state == LifecycleState::Blocked)
-    {
+    if constituent_lifecycle.contains(&LifecycleState::Blocked) {
         return Some(RemediationPlan {
             repo_id: packet.repo_id.clone(),
             affected_object_type: AffectedObjectType::Packet,
@@ -146,10 +143,7 @@ pub fn plan_packet_remediation(
         });
     }
 
-    if constituent_lifecycle
-        .iter()
-        .any(|state| *state == LifecycleState::Superseded)
-    {
+    if constituent_lifecycle.contains(&LifecycleState::Superseded) {
         return Some(RemediationPlan {
             repo_id: packet.repo_id.clone(),
             affected_object_type: AffectedObjectType::Packet,
@@ -166,10 +160,7 @@ pub fn plan_packet_remediation(
         });
     }
 
-    if constituent_freshness
-        .iter()
-        .any(|state| *state == FreshnessState::Invalidated)
-    {
+    if constituent_freshness.contains(&FreshnessState::Invalidated) {
         return Some(RemediationPlan {
             repo_id: packet.repo_id.clone(),
             affected_object_type: AffectedObjectType::Packet,
@@ -186,10 +177,7 @@ pub fn plan_packet_remediation(
         });
     }
 
-    if constituent_freshness
-        .iter()
-        .any(|state| *state == FreshnessState::Stale)
-    {
+    if constituent_freshness.contains(&FreshnessState::Stale) {
         return Some(RemediationPlan {
             repo_id: packet.repo_id.clone(),
             affected_object_type: AffectedObjectType::Packet,

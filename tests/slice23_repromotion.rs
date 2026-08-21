@@ -27,7 +27,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_reapproval_allows_repromotion() -> Result<(), Box<dyn Error>> {
@@ -87,7 +87,7 @@ struct PreparedRePromotionSurface {
 }
 
 fn make_prepared_repromotion_surface(
-    root: &PathBuf,
+    root: &Path,
 ) -> Result<PreparedRePromotionSurface, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");

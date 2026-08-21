@@ -314,7 +314,7 @@ mod tests {
         );
 
         assert_eq!(extract_u32_field(text, "slice").unwrap(), 16);
-        assert_eq!(extract_bool_field(text, "replay_ready").unwrap(), true);
+        assert!(extract_bool_field(text, "replay_ready").unwrap());
         assert_eq!(
             extract_string_field(text, "source_zip").unwrap(),
             "target/proof_artifacts/slice14_export.zip"

@@ -535,7 +535,7 @@ mod tests {
                 workspace_path: PathBuf::from(DEFAULT_WORKSPACE_PATH),
             },
             "abc123",
-            &vec![
+            &[
                 "README.txt".to_string(),
                 "governed_flow_report.json".to_string(),
                 "package_index.json".to_string(),

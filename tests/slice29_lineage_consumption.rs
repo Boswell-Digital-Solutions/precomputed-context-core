@@ -45,7 +45,7 @@ use precomputed_context_core::trust_envelope::{
 use sha2::{Digest, Sha256};
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[test]
 fn valid_active_lineage_attestation_builds_and_publishes() -> Result<(), Box<dyn Error>> {
@@ -84,7 +84,7 @@ fn contract_without_admitted_requirement_fails_closed() -> Result<(), Box<dyn Er
     Ok(())
 }
 
-fn make_prepared_activation_workspace(root: &PathBuf) -> Result<PathBuf, Box<dyn Error>> {
+fn make_prepared_activation_workspace(root: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let zip_path = root.join("package.zip");
     let sha_path = root.join("package.zip.sha256");
     let policy_path = root.join("import_authorization_policy.json");

@@ -159,10 +159,14 @@ pub fn run_governed_flow_proof(_root: &Path) -> GovernedFlowReport {
         )
     });
 
-    let affected_packet_outcome =
-        apply_packet_constituent_change(&affected_packet, &[authority_outcome.artifact.clone()]);
-    let unaffected_packet_outcome =
-        apply_packet_constituent_change(&unaffected_packet, &[unaffected_artifact.clone()]);
+    let affected_packet_outcome = apply_packet_constituent_change(
+        &affected_packet,
+        std::slice::from_ref(&authority_outcome.artifact),
+    );
+    let unaffected_packet_outcome = apply_packet_constituent_change(
+        &unaffected_packet,
+        std::slice::from_ref(&unaffected_artifact),
+    );
 
     let packet_gate_ok = affected_packet_outcome.affected_artifact_ids == vec!["art-001"]
         && affected_packet_outcome.reevaluation_required

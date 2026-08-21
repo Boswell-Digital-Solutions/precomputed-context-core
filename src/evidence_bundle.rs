@@ -422,10 +422,10 @@ mod tests {
         let manifest = build_replay_bundle_manifest(
             "2026-04-15T20:10:00Z",
             "forgecommand",
-            &[event_receipt.clone()],
-            &[artifact_record.clone()],
-            &[packet_record.clone()],
-            &[remediation_record.clone()],
+            std::slice::from_ref(&event_receipt),
+            std::slice::from_ref(&artifact_record),
+            std::slice::from_ref(&packet_record),
+            std::slice::from_ref(&remediation_record),
         )
         .expect("manifest build should succeed");
 
