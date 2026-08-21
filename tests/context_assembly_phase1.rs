@@ -34,6 +34,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 3,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "scene-summary://chapter-03/scene-06".to_string(),
@@ -41,6 +42,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 15,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "lore://canon/character/amara".to_string(),
@@ -48,6 +50,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 11,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
             SourceInput {
                 payload_ref: "style://house/minimize-adverbs".to_string(),
@@ -55,6 +58,7 @@ fn base_request() -> ContextAssemblyRequest {
                 age_minutes: 8,
                 authority_state: AuthorityState::Accepted,
                 is_override: false,
+                provenance: None,
             },
         ],
     }

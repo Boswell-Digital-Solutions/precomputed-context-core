@@ -12,3 +12,9 @@ This repo advances through governed proof slices rather than freeform feature dr
 ### Current slice position
 
 The repo has reached capstone proof posture through Slice 36, ending at terminal consumer import validation and a program capstone report.
+
+Slice 37 reopens the context-assembly contract to admit a governed memory source
+class. It sits outside the export/import/release chain the capstone sealed, and
+does not disturb it: the two bundle hashes captured before the slice are asserted
+as goldens, so a context bundle assembled under the earlier slices assembles
+identically under this one.

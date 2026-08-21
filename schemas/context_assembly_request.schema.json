@@ -35,6 +35,7 @@
         "AdjacentSceneSummaryOrClippedBody",
         "AcceptedLoreRecord",
         "AcceptedStyleRuleRecord",
+        "GovernedMemoryFact",
         "ExperimentalFutureSource"
       ],
       "type": "string"
@@ -55,6 +56,17 @@
         "payload_ref": {
           "type": "string"
         },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SourceProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required for [`SourceClass::GovernedMemoryFact`], absent otherwise.\n\nOptional in the type so every existing caller keeps compiling and every existing serialized request keeps deserializing; mandatory in the rule so a memory fact that cannot say where it came from is refused rather than admitted unlabelled. Optional alone would not be fail-closed, and required alone would break every manuscript caller. Neither is enough by itself."
+        },
         "source_class": {
           "$ref": "#/definitions/SourceClass"
         }
@@ -65,6 +77,29 @@
         "is_override",
         "payload_ref",
         "source_class"
+      ],
+      "type": "object"
+    },
+    "SourceProvenance": {
+      "description": "Where a governed memory source came from and under what authority.\n\nEvery field is a reference. Nothing here carries memory content: this records *which* fact a bundle rested on, not what the fact said.",
+      "properties": {
+        "authority_ref": {
+          "description": "What authorized its use here — typically a `memory_residency_policy` reference. Recorded, never authenticated here.",
+          "type": "string"
+        },
+        "memory_ref": {
+          "description": "The memory fact, in forge_contract_core reference grammar: `<artifact_family>:<artifact_id>:v<artifact_version>`.",
+          "type": "string"
+        },
+        "retrieval_receipt_ref": {
+          "description": "The `memory_retrieval_receipt` that supplied it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority_ref",
+        "memory_ref",
+        "retrieval_receipt_ref"
       ],
       "type": "object"
     },

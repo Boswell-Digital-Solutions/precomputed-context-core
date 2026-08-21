@@ -15,6 +15,23 @@ pub enum SourceClass {
     AdjacentSceneSummaryOrClippedBody,
     AcceptedLoreRecord,
     AcceptedStyleRuleRecord,
+    // A fact that passed forge-memory's governance.
+    //
+    // Named for what it is rather than where it came from, matching the
+    // `Accepted*Record` style: "memory source" would name the pipe.
+    //
+    // Admission is still double-gated — a source must be phase-1 allowed *and*
+    // listed in the request's `allowed_source_classes` — so this class becomes
+    // available, never supplied. No manuscript profile that predates it can
+    // receive one by accident.
+    //
+    // Deliberately a line comment rather than a doc comment: schemars promotes an
+    // enum whose variants carry docs from a flat `enum` list into a `oneOf` of
+    // per-variant branches. That is semantically equivalent and structurally
+    // different, and a consumer reading the exported schema would see the shape
+    // change rather than one more string in a list. The explanation belongs to
+    // readers of this file; the schema should record only that the class exists.
+    GovernedMemoryFact,
     ExperimentalFutureSource,
 }
 
@@ -25,6 +42,7 @@ impl SourceClass {
             Self::AdjacentSceneSummaryOrClippedBody => "adjacent_scene_summary_or_clipped_body",
             Self::AcceptedLoreRecord => "accepted_lore_record",
             Self::AcceptedStyleRuleRecord => "accepted_style_rule_record",
+            Self::GovernedMemoryFact => "governed_memory_fact",
             Self::ExperimentalFutureSource => "experimental_future_source",
         }
     }
@@ -36,7 +54,18 @@ impl SourceClass {
                 | Self::AdjacentSceneSummaryOrClippedBody
                 | Self::AcceptedLoreRecord
                 | Self::AcceptedStyleRuleRecord
+                | Self::GovernedMemoryFact
         )
+    }
+
+    /// Whether a source of this class must carry [`SourceProvenance`].
+    ///
+    /// Only governed memory does. A manuscript source is identified by the
+    /// target refs the request already names; a memory fact is not, so without
+    /// provenance a bundle could not say which fact it rested on or under what
+    /// authority it was used.
+    pub fn requires_provenance(&self) -> bool {
+        matches!(self, Self::GovernedMemoryFact)
     }
 }
 
@@ -83,6 +112,37 @@ pub struct TargetRefs {
     pub accepted_style_rule_refs: Vec<String>,
 }
 
+/// Where a governed memory source came from and under what authority.
+///
+/// Every field is a reference. Nothing here carries memory content: this
+/// records *which* fact a bundle rested on, not what the fact said.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SourceProvenance {
+    /// The memory fact, in forge_contract_core reference grammar:
+    /// `<artifact_family>:<artifact_id>:v<artifact_version>`.
+    pub memory_ref: String,
+    /// The `memory_retrieval_receipt` that supplied it.
+    pub retrieval_receipt_ref: String,
+    /// What authorized its use here — typically a `memory_residency_policy`
+    /// reference. Recorded, never authenticated here.
+    pub authority_ref: String,
+}
+
+impl SourceProvenance {
+    /// The hash contribution for this provenance.
+    ///
+    /// Kept beside the struct so the entry piece in [`compute_bundle_hash`] and
+    /// the fields cannot drift apart: adding a field here without extending this
+    /// would leave it recorded but unbound, which is a label rather than
+    /// evidence.
+    fn hash_piece(&self) -> String {
+        format!(
+            "|{}|{}|{}",
+            self.memory_ref, self.retrieval_receipt_ref, self.authority_ref
+        )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SourceInput {
     pub payload_ref: String,
@@ -90,6 +150,16 @@ pub struct SourceInput {
     pub age_minutes: u64,
     pub authority_state: AuthorityState,
     pub is_override: bool,
+    /// Required for [`SourceClass::GovernedMemoryFact`], absent otherwise.
+    ///
+    /// Optional in the type so every existing caller keeps compiling and every
+    /// existing serialized request keeps deserializing; mandatory in the rule so
+    /// a memory fact that cannot say where it came from is refused rather than
+    /// admitted unlabelled. Optional alone would not be fail-closed, and
+    /// required alone would break every manuscript caller. Neither is enough by
+    /// itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<SourceProvenance>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -111,6 +181,8 @@ pub struct SourceInventoryEntry {
     pub age_minutes: u64,
     pub authority_state: AuthorityState,
     pub is_override: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<SourceProvenance>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -137,6 +209,7 @@ pub enum ContextAssemblyError {
     AuthorityConflictUnresolved { payload_ref: String },
     DisallowedOverride { payload_ref: String, source_class: SourceClass },
     UnsupportedSourceClass { source_class: SourceClass },
+    MissingProvenance { payload_ref: String, source_class: SourceClass },
 }
 
 impl fmt::Display for ContextAssemblyError {
@@ -169,6 +242,16 @@ impl fmt::Display for ContextAssemblyError {
             Self::UnsupportedSourceClass { source_class } => {
                 write!(f, "unsupported source class {}", source_class.as_str())
             }
+            Self::MissingProvenance {
+                payload_ref,
+                source_class,
+            } => write!(
+                f,
+                "missing provenance for {} ({}): a {} source must name the memory it                  came from, the receipt that supplied it, and the authority it was used under",
+                payload_ref,
+                source_class.as_str(),
+                source_class.as_str()
+            ),
         }
     }
 }
@@ -192,6 +275,13 @@ pub fn assemble_context(
             || !request.allowed_source_classes.contains(&source.source_class)
         {
             return Err(ContextAssemblyError::UnsupportedSourceClass {
+                source_class: source.source_class.clone(),
+            });
+        }
+
+        if source.source_class.requires_provenance() && source.provenance.is_none() {
+            return Err(ContextAssemblyError::MissingProvenance {
+                payload_ref: source.payload_ref.clone(),
                 source_class: source.source_class.clone(),
             });
         }
@@ -241,6 +331,7 @@ pub fn assemble_context(
             age_minutes: source.age_minutes,
             authority_state: source.authority_state.clone(),
             is_override: source.is_override,
+            provenance: source.provenance.clone(),
         });
     }
 
@@ -347,15 +438,26 @@ fn compute_bundle_hash(
         request.task_version.clone(),
     ];
 
+    // Provenance joins the piece only when present, so an entry without it
+    // hashes to the byte-identical string it always did. Every bundle assembled
+    // before this field existed keeps its bundle_hash and context_bundle_id.
+    //
+    // When present it is bound into the bundle's identity rather than merely
+    // recorded alongside it: a bundle cannot silently change which memory fact
+    // it rested on, or which receipt supplied it, while keeping its id.
     for entry in inventory {
-        pieces.push(format!(
+        let mut piece = format!(
             "{}|{}|{}|{:?}|{}",
             entry.payload_ref,
             entry.source_class.as_str(),
             entry.age_minutes,
             entry.authority_state,
             entry.is_override
-        ));
+        );
+        if let Some(provenance) = &entry.provenance {
+            piece.push_str(&provenance.hash_piece());
+        }
+        pieces.push(piece);
     }
 
     let canonical = pieces.join("||");
