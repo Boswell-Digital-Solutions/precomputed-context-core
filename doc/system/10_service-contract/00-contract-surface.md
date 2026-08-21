@@ -15,7 +15,8 @@ The contract surface is centered on typed Rust modules and deterministic JSON ar
 - release attestation and sealed release bundle contracts
 - terminal consumer import receipt contracts
 - context assembly contracts, including the governed memory source class, its
-  provenance record, and per-class freshness limits
+  provenance record, per-class freshness limits, and the algorithm-tagged bundle
+  identity
 
 ### Contract rule
 
@@ -44,6 +45,18 @@ bundle identity moves; an entry with it binds that provenance into the bundle's
 identity, so a bundle cannot silently change which memory it rested on while
 keeping its id. Provenance recorded but unhashed would be a label rather than
 evidence.
+
+### The bundle identity says what produced it
+
+`context_bundle_id` is `ctxb.sha256.<64 hex>`; `legacy_context_bundle_id` carries
+the FNV-1a form it had before Slice 39. Both are computed for every bundle, from
+one canonical string, and neither prefix is a prefix of the other — so a resolver
+holding a mixed population dispatches on the tag rather than guessing from
+length. `ID_PREFIX` and `LEGACY_ID_PREFIX` are exported for that.
+
+Both, permanently. DataForge's `context_packs` keys on the id and has no
+retention, so rows minted under the old scheme never age out and there is no date
+after which the old form stops mattering.
 
 ### Freshness is per class, because lifetimes are
 

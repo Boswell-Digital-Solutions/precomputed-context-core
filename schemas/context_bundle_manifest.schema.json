@@ -108,13 +108,22 @@
       "type": "boolean"
     },
     "bundle_hash": {
+      "description": "SHA-256 over the same canonical string the legacy digest covers.",
       "type": "string"
     },
     "context_bundle_id": {
+      "description": "Algorithm-tagged: `ctxb.sha256.<64 hex>`.\n\nThe tag is the point. An untagged identity cannot say which function produced it, so a resolver holding a mixed population has to guess — and the guess is only safe while exactly one algorithm has ever been used, which is the assumption this slice exists to remove.",
       "type": "string"
     },
     "freshness_band": {
       "$ref": "#/definitions/FreshnessBand"
+    },
+    "legacy_bundle_hash": {
+      "type": "string"
+    },
+    "legacy_context_bundle_id": {
+      "description": "The FNV-1a 64 identity this bundle would have had before Slice 39, and still has wherever it was already recorded.\n\nNot deprecated dead weight: `context_packs` in DataForge keys on the id and has no retention — no `DELETE`, no TTL, no cleanup job — so rows minted under the old scheme never age out. Resolution across both forms is therefore permanent rather than transitional, and a consumer needs this value to find a pack stored before the change.",
+      "type": "string"
     },
     "override_decision": {
       "$ref": "#/definitions/OverrideDecision"
@@ -134,6 +143,8 @@
     "bundle_hash",
     "context_bundle_id",
     "freshness_band",
+    "legacy_bundle_hash",
+    "legacy_context_bundle_id",
     "override_decision",
     "replay_eligibility",
     "source_inventory"

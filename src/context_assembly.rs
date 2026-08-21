@@ -8,6 +8,15 @@ use std::fmt;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+
+/// Identity prefix for the current scheme. Carries the algorithm so a resolver
+/// never has to infer it from length.
+pub const ID_PREFIX: &str = "ctxb.sha256.";
+
+/// Identity prefix for everything minted before Slice 39. Untagged, because at
+/// the time there was only one algorithm to be.
+pub const LEGACY_ID_PREFIX: &str = "ctxb_";
 
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
@@ -236,8 +245,25 @@ pub struct SourceInventoryEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ContextBundleManifest {
+    /// Algorithm-tagged: `ctxb.sha256.<64 hex>`.
+    ///
+    /// The tag is the point. An untagged identity cannot say which function
+    /// produced it, so a resolver holding a mixed population has to guess — and
+    /// the guess is only safe while exactly one algorithm has ever been used,
+    /// which is the assumption this slice exists to remove.
     pub context_bundle_id: String,
+    /// SHA-256 over the same canonical string the legacy digest covers.
     pub bundle_hash: String,
+    /// The FNV-1a 64 identity this bundle would have had before Slice 39, and
+    /// still has wherever it was already recorded.
+    ///
+    /// Not deprecated dead weight: `context_packs` in DataForge keys on the id
+    /// and has no retention — no `DELETE`, no TTL, no cleanup job — so rows
+    /// minted under the old scheme never age out. Resolution across both forms
+    /// is therefore permanent rather than transitional, and a consumer needs
+    /// this value to find a pack stored before the change.
+    pub legacy_context_bundle_id: String,
+    pub legacy_bundle_hash: String,
     pub source_inventory: Vec<SourceInventoryEntry>,
     pub freshness_band: FreshnessBand,
     pub override_decision: OverrideDecision,
@@ -458,13 +484,18 @@ pub fn assemble_context(
         OverrideDecision::NoOverridePresent
     };
 
-    let bundle_hash = compute_bundle_hash(request, &inventory);
-    let context_bundle_id = format!("ctxb_{}", &bundle_hash[..16]);
+    let canonical = canonical_string(request, &inventory);
+    let bundle_hash = strong_digest(&canonical);
+    let context_bundle_id = format!("{ID_PREFIX}{bundle_hash}");
+    let legacy_bundle_hash = legacy_digest(&canonical);
+    let legacy_context_bundle_id = format!("{LEGACY_ID_PREFIX}{legacy_bundle_hash}");
 
     Ok(ContextAssemblyOutput {
         manifest: ContextBundleManifest {
             context_bundle_id,
             bundle_hash,
+            legacy_context_bundle_id,
+            legacy_bundle_hash,
             source_inventory: inventory,
             freshness_band,
             override_decision,
@@ -564,7 +595,13 @@ fn require_target_ref(
     Ok(())
 }
 
-fn compute_bundle_hash(
+/// The canonical string both digests are taken over.
+///
+/// Extracted unchanged from the previous `compute_bundle_hash`. Keeping one
+/// canonicalisation for both algorithms is what makes the legacy digest provably
+/// identical to what it was: the bytes fed to FNV are the same bytes, so a
+/// legacy id computed now equals the one recorded then.
+fn canonical_string(
     request: &ContextAssemblyRequest,
     inventory: &[SourceInventoryEntry],
 ) -> String {
@@ -596,9 +633,32 @@ fn compute_bundle_hash(
         pieces.push(piece);
     }
 
-    let canonical = pieces.join("||");
-    let hash = fnv1a64(canonical.as_bytes());
-    format!("{:016x}", hash)
+    pieces.join("||")
+}
+
+/// The pre-Slice-39 identity. Retained because recorded ids must stay
+/// resolvable, not because the digest is fit for the job it was given.
+fn legacy_digest(canonical: &str) -> String {
+    format!("{:016x}", fnv1a64(canonical.as_bytes()))
+}
+
+/// The identity this repository mints now.
+///
+/// FNV-1a is a fast non-cryptographic hash, and 64 bits of it is 2^32 birthday
+/// work — seconds of ordinary hardware. That was an unremarkable choice while
+/// the value was a deterministic name. It stopped being one when PACT's packet
+/// builders and forgeHQ's verification bridge began treating the value as an
+/// integrity binding, the latter describing it as proof that a verification "was
+/// produced against the exact governed, replay-eligible context". A binding that
+/// cheap to forge does not carry that claim.
+fn strong_digest(canonical: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(canonical.as_bytes());
+    hasher
+        .finalize()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {

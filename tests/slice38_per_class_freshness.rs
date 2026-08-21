@@ -153,12 +153,12 @@ fn the_error_names_the_limit_that_actually_refused_the_source() {
 fn pre_existing_bundle_hashes_do_not_move() {
     let phase1 = assemble_context(&phase1_request()).expect("phase 1 assembles");
     assert_eq!(
-        phase1.manifest.bundle_hash, GOLDEN_PHASE1_HASH,
+        phase1.manifest.legacy_bundle_hash, GOLDEN_PHASE1_HASH,
         "the phase-1 profile's replay identity moved"
     );
     let continuity = assemble_context(&continuity_request()).expect("continuity assembles");
     assert_eq!(
-        continuity.manifest.bundle_hash, GOLDEN_CONTINUITY_HASH,
+        continuity.manifest.legacy_bundle_hash, GOLDEN_CONTINUITY_HASH,
         "the continuity profile's replay identity moved"
     );
 }

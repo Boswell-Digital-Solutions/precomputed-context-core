@@ -49,7 +49,10 @@ test -f "$report"
 # which cannot notice a hash that moved once and then stayed put — so the
 # recorded value is checked here against the one captured before the change.
 bash scripts/verify_context_assembly_continuity.sh
-grep -q '"bundle_hash": "81419b53ca63648c"' \
+# Slice 39 moved the FNV identity to legacy_bundle_hash and minted a tagged
+# sha256 as bundle_hash. Asserting the legacy value here is the stronger claim:
+# it proves a pack stored under the old id is still findable.
+grep -q '"legacy_bundle_hash": "81419b53ca63648c"' \
   target/proof_artifacts/context_assembly_continuity/continuity_manifest_report.json
 
 echo "Slice 37 verification passed"

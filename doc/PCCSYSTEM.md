@@ -132,8 +132,9 @@ The contract surface is centered on typed Rust modules and deterministic JSON ar
 - downstream release and release readiness contracts
 - release attestation and sealed release bundle contracts
 - terminal consumer import receipt contracts
-- context assembly contracts, including the governed memory source class and its
-  provenance record
+- context assembly contracts, including the governed memory source class, its
+  provenance record, per-class freshness limits, and the algorithm-tagged bundle
+  identity
 
 ### Contract rule
 
@@ -162,6 +163,42 @@ bundle identity moves; an entry with it binds that provenance into the bundle's
 identity, so a bundle cannot silently change which memory it rested on while
 keeping its id. Provenance recorded but unhashed would be a label rather than
 evidence.
+
+### The bundle identity says what produced it
+
+`context_bundle_id` is `ctxb.sha256.<64 hex>`; `legacy_context_bundle_id` carries
+the FNV-1a form it had before Slice 39. Both are computed for every bundle, from
+one canonical string, and neither prefix is a prefix of the other — so a resolver
+holding a mixed population dispatches on the tag rather than guessing from
+length. `ID_PREFIX` and `LEGACY_ID_PREFIX` are exported for that.
+
+Both, permanently. DataForge's `context_packs` keys on the id and has no
+retention, so rows minted under the old scheme never age out and there is no date
+after which the old form stops mattering.
+
+### Freshness is per class, because lifetimes are
+
+`FreshnessPolicy.max_source_age_minutes` governs every class that has no
+override. It could not govern them all well: an active scene is stale in minutes
+and a governed memory fact earns its value by persisting, so one number set for
+scenes refused every memory fact and one set for memory admitted a stale scene.
+
+`class_overrides` names a limit for a class. It is `Option` and skipped when
+absent, so a policy that never mentions it is byte-identical on the wire to one
+written before the field existed, and behaves identically. An override for one
+class does not slacken another, and `StaleSource` reports the limit that actually
+applied rather than the bundle-wide default — an error naming the wrong number
+sends a reader looking in the wrong place.
+
+A policy that cannot be read one way is refused before any source is considered:
+a class named twice has two limits and no stated way to choose, and an override
+for a class that is not phase-1 allowed is dead configuration, which is what a
+typo looks like.
+
+`freshness_band` follows the source nearest **its own** limit. Under a single
+limit the oldest source was necessarily the closest to refusal; with per-class
+limits it is not. The two rules agree wherever no override is present, and that
+equivalence is swept rather than argued — see §10.
 
 ---
 
@@ -210,6 +247,19 @@ does not disturb it: the two bundle hashes captured before the slice are asserte
 as goldens, so a context bundle assembled under the earlier slices assembles
 identically under this one.
 
+Slice 39 replaces the bundle identity with an algorithm-tagged SHA-256 while
+keeping the FNV-1a one it had, because DataForge's `context_packs` keys on the id
+and never removes rows — so resolution across both forms is the steady state
+rather than a transitional phase. The goldens moved to `legacy_bundle_hash` and
+are asserted there, which is the stronger claim: it proves a pack stored under
+the old id is still findable.
+
+Slice 38 gives `FreshnessPolicy` per-class limits, closing the gap Slice 37 named
+and worked around. It carries the same goldens forward and adds one of its own
+kind: the freshness-band rule was rewritten, and the rewrite is proven equivalent
+to the rule it replaced by sweeping every age pair across a range of limits with
+no override present, rather than by argument.
+
 ---
 
 ## 40. Validation and Proof
@@ -230,7 +280,7 @@ The current proof chain culminates in `bash scripts/verify_slice_36.sh`, which e
 
 ### Context-assembly verifiers
 
-Two verifiers sit outside that chain because they prove a different contract:
+Four verifiers sit outside that chain because they prove a different contract:
 
 - `bash scripts/verify_context_assembly_continuity.sh` — the continuity profile's
   report is byte-identical across repeated emission.
@@ -239,10 +289,44 @@ Two verifiers sit outside that chain because they prove a different contract:
   bundle identity, that the exported schemas match the types they are generated
   from, and that no pre-existing bundle hash moved.
 
-The second checks a recorded hash value, not merely repeatability. A verifier
+- `bash scripts/verify_slice_38.sh` — per-class freshness limits: that an
+  override for one class does not slacken another, that a policy naming a class
+  twice or naming an unusable class is refused before any source is considered,
+  and that the rewritten freshness-band rule agrees with the one it replaced.
+
+The last two check recorded hash values, not merely repeatability. A verifier
 that only compares two runs of the same build cannot notice a hash that moved
 once and then stayed put, so the values captured before the change are asserted
 literally.
+
+### Lint hygiene
+
+`bash scripts/verify_lint.sh` runs `cargo fmt --check` and
+`cargo clippy --all-targets -- -D warnings`. It proves nothing about behaviour
+and everything about whether the next reformat will be a large diff that a real
+change can hide inside — this repository had accumulated 83 unformatted files and
+35 clippy warnings before either command was run in anger, which is what happens
+when nothing checks.
+
+It is deliberately not folded into a slice verifier: those prove contracts, and
+this does not. A new warning fails the gate rather than joining a pile nobody
+reads; where a lint is genuinely wrong for the code, silence it at the site with
+a reason, which is a decision on the record.
+
+- `bash scripts/verify_slice_39.sh` — the algorithm-tagged bundle identity: that
+  the legacy identity is byte-identical to what it was, that both digests come
+  from one canonical string, that the minted id names its algorithm, and that it
+  fits the column that has to hold it.
+
+Slice 39's is the one whose failure would be quietest. A pack is keyed by its id,
+and a lookup miss falls back to re-grounding rather than erroring — so a drifted
+legacy identity surfaces as cost, not as an alarm. The goldens are asserted
+against `legacy_bundle_hash` for that reason.
+
+Slice 38's verifier also asserts that its equivalence sweep **actually swept**.
+The proof reports how many age pairs it compared, and a report claiming zero
+disagreements over zero comparisons is the shape a silently-skipped check takes —
+it would otherwise read as a pass.
 
 ---
 

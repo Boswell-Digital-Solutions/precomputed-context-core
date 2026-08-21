@@ -16,7 +16,7 @@ The current proof chain culminates in `bash scripts/verify_slice_36.sh`, which e
 
 ### Context-assembly verifiers
 
-Three verifiers sit outside that chain because they prove a different contract:
+Four verifiers sit outside that chain because they prove a different contract:
 
 - `bash scripts/verify_context_assembly_continuity.sh` — the continuity profile's
   report is byte-identical across repeated emission.
@@ -48,6 +48,16 @@ It is deliberately not folded into a slice verifier: those prove contracts, and
 this does not. A new warning fails the gate rather than joining a pile nobody
 reads; where a lint is genuinely wrong for the code, silence it at the site with
 a reason, which is a decision on the record.
+
+- `bash scripts/verify_slice_39.sh` — the algorithm-tagged bundle identity: that
+  the legacy identity is byte-identical to what it was, that both digests come
+  from one canonical string, that the minted id names its algorithm, and that it
+  fits the column that has to hold it.
+
+Slice 39's is the one whose failure would be quietest. A pack is keyed by its id,
+and a lookup miss falls back to re-grounding rather than erroring — so a drifted
+legacy identity surfaces as cost, not as an alarm. The goldens are asserted
+against `legacy_bundle_hash` for that reason.
 
 Slice 38's verifier also asserts that its equivalence sweep **actually swept**.
 The proof reports how many age pairs it compared, and a report claiming zero
