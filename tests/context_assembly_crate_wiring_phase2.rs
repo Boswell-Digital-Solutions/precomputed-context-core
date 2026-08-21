@@ -21,9 +21,7 @@ fn base_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 180,
-        },
+        freshness_policy: FreshnessPolicy::uniform(180),
         override_posture: OverridePosture::AllowAcceptedStyleRuleRecords,
         sources: vec![
             SourceInput {

@@ -14,8 +14,8 @@ The contract surface is centered on typed Rust modules and deterministic JSON ar
 - downstream release and release readiness contracts
 - release attestation and sealed release bundle contracts
 - terminal consumer import receipt contracts
-- context assembly contracts, including the governed memory source class and its
-  provenance record
+- context assembly contracts, including the governed memory source class, its
+  provenance record, and per-class freshness limits
 
 ### Contract rule
 
@@ -44,3 +44,27 @@ bundle identity moves; an entry with it binds that provenance into the bundle's
 identity, so a bundle cannot silently change which memory it rested on while
 keeping its id. Provenance recorded but unhashed would be a label rather than
 evidence.
+
+### Freshness is per class, because lifetimes are
+
+`FreshnessPolicy.max_source_age_minutes` governs every class that has no
+override. It could not govern them all well: an active scene is stale in minutes
+and a governed memory fact earns its value by persisting, so one number set for
+scenes refused every memory fact and one set for memory admitted a stale scene.
+
+`class_overrides` names a limit for a class. It is `Option` and skipped when
+absent, so a policy that never mentions it is byte-identical on the wire to one
+written before the field existed, and behaves identically. An override for one
+class does not slacken another, and `StaleSource` reports the limit that actually
+applied rather than the bundle-wide default — an error naming the wrong number
+sends a reader looking in the wrong place.
+
+A policy that cannot be read one way is refused before any source is considered:
+a class named twice has two limits and no stated way to choose, and an override
+for a class that is not phase-1 allowed is dead configuration, which is what a
+typo looks like.
+
+`freshness_band` follows the source nearest **its own** limit. Under a single
+limit the oldest source was necessarily the closest to refusal; with per-class
+limits it is not. The two rules agree wherever no override is present, and that
+equivalence is swept rather than argued — see §10.

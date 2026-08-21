@@ -81,9 +81,7 @@ fn sample_request() -> ContextAssemblyRequest {
             accepted_style_rule_refs: Vec::new(),
         },
         allowed_source_classes: Vec::new(),
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 60,
-        },
+        freshness_policy: FreshnessPolicy::uniform(60),
         override_posture: OverridePosture::DisallowAll,
         sources: Vec::new(),
     }

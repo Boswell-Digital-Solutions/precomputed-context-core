@@ -18,3 +18,9 @@ class. It sits outside the export/import/release chain the capstone sealed, and
 does not disturb it: the two bundle hashes captured before the slice are asserted
 as goldens, so a context bundle assembled under the earlier slices assembles
 identically under this one.
+
+Slice 38 gives `FreshnessPolicy` per-class limits, closing the gap Slice 37 named
+and worked around. It carries the same goldens forward and adds one of its own
+kind: the freshness-band rule was rewritten, and the rewrite is proven equivalent
+to the rule it replaced by sweeping every age pair across a range of limits with
+no override present, rather than by argument.

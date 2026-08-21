@@ -62,9 +62,9 @@ fn memory_request(sources: Vec<SourceInput>) -> ContextAssemblyRequest {
             accepted_style_rule_refs: vec![],
         },
         allowed_source_classes: vec![SourceClass::GovernedMemoryFact],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 525_600, // one year
-        },
+        // One year: the memory-only-bundle interim Slice 37 shipped with,
+        // before per-class limits made it unnecessary (Slice 38).
+        freshness_policy: FreshnessPolicy::uniform(525_600),
         override_posture: OverridePosture::DisallowAll,
         sources,
     }
@@ -133,9 +133,7 @@ fn provenance_is_refused_for_the_reason_that_applies() {
     // provenance is the real defect, and the error must name it rather than
     // whichever unrelated rule the source happens to trip first.
     let mut request = memory_request(vec![memory_source("mem://fact/amara-age", None)]);
-    request.freshness_policy = FreshnessPolicy {
-        max_source_age_minutes: 120,
-    };
+    request.freshness_policy = FreshnessPolicy::uniform(120);
     assert!(matches!(
         assemble_context(&request),
         Err(ContextAssemblyError::MissingProvenance { .. })
@@ -240,9 +238,7 @@ fn phase1_base_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 120,
-        },
+        freshness_policy: FreshnessPolicy::uniform(120),
         override_posture: OverridePosture::DisallowAll,
         sources: vec![
             manuscript_source("scene://chapter-03/scene-07", SourceClass::ActiveScene, 3),
@@ -284,9 +280,7 @@ fn continuity_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 120,
-        },
+        freshness_policy: FreshnessPolicy::uniform(120),
         override_posture: OverridePosture::DisallowAll,
         sources: vec![
             manuscript_source("scene://chapter-05/scene-02", SourceClass::ActiveScene, 4),

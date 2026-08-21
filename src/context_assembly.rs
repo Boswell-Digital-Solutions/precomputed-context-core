@@ -99,9 +99,56 @@ pub enum ReplayEligibility {
     Eligible,
 }
 
+/// One class's own staleness limit, overriding the bundle-wide default.
+///
+/// A list rather than a map, deliberately: a map's iteration order is not
+/// stable, and this repository binds identity to serialized form in enough
+/// places that an unordered collection is a latent replay hazard even where it
+/// is not hashed today.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct ClassFreshnessOverride {
+    pub source_class: SourceClass,
+    pub max_source_age_minutes: u64,
+}
+
+/// How old a source may be before it is refused.
+///
+/// `max_source_age_minutes` governs every class that has no override, and by
+/// itself it is the whole policy — which was the problem. Source classes have
+/// different natural lifetimes: an active scene is stale in minutes, and a
+/// governed memory fact earns its value by persisting. One number set for scenes
+/// refuses every memory fact; set for memory it admits a stale scene.
+///
+/// `class_overrides` is `Option` and skipped when absent, so a policy that never
+/// mentions it serializes byte-identically to one written before this field
+/// existed, and behaves identically too. Nothing that assembles today changes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct FreshnessPolicy {
     pub max_source_age_minutes: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub class_overrides: Option<Vec<ClassFreshnessOverride>>,
+}
+
+impl FreshnessPolicy {
+    /// A policy with no per-class overrides — the shape every caller had before
+    /// they existed.
+    pub fn uniform(max_source_age_minutes: u64) -> Self {
+        FreshnessPolicy {
+            max_source_age_minutes,
+            class_overrides: None,
+        }
+    }
+
+    /// The staleness limit that applies to `source_class`.
+    pub fn max_for(&self, source_class: &SourceClass) -> u64 {
+        self.class_overrides
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .find(|entry| &entry.source_class == source_class)
+            .map(|entry| entry.max_source_age_minutes)
+            .unwrap_or(self.max_source_age_minutes)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -210,6 +257,8 @@ pub enum ContextAssemblyError {
     DisallowedOverride { payload_ref: String, source_class: SourceClass },
     UnsupportedSourceClass { source_class: SourceClass },
     MissingProvenance { payload_ref: String, source_class: SourceClass },
+    DuplicateFreshnessOverride { source_class: SourceClass },
+    UnsupportedFreshnessOverride { source_class: SourceClass },
 }
 
 impl fmt::Display for ContextAssemblyError {
@@ -242,12 +291,22 @@ impl fmt::Display for ContextAssemblyError {
             Self::UnsupportedSourceClass { source_class } => {
                 write!(f, "unsupported source class {}", source_class.as_str())
             }
+            Self::DuplicateFreshnessOverride { source_class } => write!(
+                f,
+                "duplicate freshness override for {}: one class cannot have two limits",
+                source_class.as_str()
+            ),
+            Self::UnsupportedFreshnessOverride { source_class } => write!(
+                f,
+                "freshness override for unsupported source class {}",
+                source_class.as_str()
+            ),
             Self::MissingProvenance {
                 payload_ref,
                 source_class,
             } => write!(
                 f,
-                "missing provenance for {} ({}): a {} source must name the memory it                  came from, the receipt that supplied it, and the authority it was used under",
+                "missing provenance for {} ({}): a {} source must name the memory it came from, the receipt that supplied it, and the authority it was used under",
                 payload_ref,
                 source_class.as_str(),
                 source_class.as_str()
@@ -262,11 +321,12 @@ pub fn assemble_context(
     request: &ContextAssemblyRequest,
 ) -> Result<ContextAssemblyOutput, ContextAssemblyError> {
     validate_allowed_classes(&request.allowed_source_classes)?;
+    validate_freshness_policy(&request.freshness_policy)?;
     validate_required_target_refs(request)?;
 
     let mut inventory: Vec<SourceInventoryEntry> = Vec::with_capacity(request.sources.len());
     let mut payload_refs: Vec<String> = Vec::with_capacity(request.sources.len());
-    let mut max_age_minutes = 0_u64;
+    let mut saw_source_near_limit = false;
     let mut saw_conflict_resolution = false;
     let mut saw_allowed_override = false;
 
@@ -286,12 +346,28 @@ pub fn assemble_context(
             });
         }
 
-        if source.age_minutes > request.freshness_policy.max_source_age_minutes {
+        // The limit that applies to *this* class, which is the bundle-wide one
+        // unless the policy said otherwise. StaleSource reports the effective
+        // limit rather than the default, so the error names the rule that
+        // actually refused the source.
+        let max_age_minutes = request.freshness_policy.max_for(&source.source_class);
+        if source.age_minutes > max_age_minutes {
             return Err(ContextAssemblyError::StaleSource {
                 payload_ref: source.payload_ref.clone(),
                 age_minutes: source.age_minutes,
-                max_age_minutes: request.freshness_policy.max_source_age_minutes,
+                max_age_minutes,
             });
+        }
+
+        // A source is near its limit at half of it or more. Judged per source
+        // against its own limit, because with per-class limits the oldest source
+        // is no longer necessarily the closest to being refused.
+        //
+        // A limit of zero contributes nothing: such a source must be zero
+        // minutes old to be here at all, and calling that "near limit" was not
+        // what the bundle-wide rule did either.
+        if max_age_minutes > 0 && source.age_minutes * 2 >= max_age_minutes {
+            saw_source_near_limit = true;
         }
 
         if source.is_override {
@@ -323,7 +399,6 @@ pub fn assemble_context(
             saw_conflict_resolution = true;
         }
 
-        max_age_minutes = max_age_minutes.max(source.age_minutes);
         payload_refs.push(source.payload_ref.clone());
         inventory.push(SourceInventoryEntry {
             payload_ref: source.payload_ref.clone(),
@@ -342,9 +417,11 @@ pub fn assemble_context(
     });
     payload_refs.sort();
 
-    let freshness_band = if request.freshness_policy.max_source_age_minutes == 0 {
-        FreshnessBand::Fresh
-    } else if max_age_minutes * 2 >= request.freshness_policy.max_source_age_minutes {
+    // Equivalent to the bundle-wide rule it replaces whenever no override is
+    // present: with a single limit L, `max(age) * 2 >= L` holds exactly when some
+    // source satisfies `age * 2 >= L`, and the L == 0 case is carried by the
+    // per-source guard above. Every existing bundle keeps its band.
+    let freshness_band = if saw_source_near_limit {
         FreshnessBand::NearLimit
     } else {
         FreshnessBand::Fresh
@@ -380,6 +457,32 @@ fn validate_allowed_classes(allowed_source_classes: &[SourceClass]) -> Result<()
                 source_class: source_class.clone(),
             });
         }
+    }
+    Ok(())
+}
+
+/// A policy may not name one class twice, or name a class that cannot be used.
+///
+/// Both are refused rather than ignored. A duplicate means two rules for one
+/// class and no stated way to choose between them; an override for an
+/// unsupported class is dead configuration, which is what a typo looks like.
+fn validate_freshness_policy(policy: &FreshnessPolicy) -> Result<(), ContextAssemblyError> {
+    let Some(overrides) = policy.class_overrides.as_deref() else {
+        return Ok(());
+    };
+    let mut seen: Vec<&SourceClass> = Vec::with_capacity(overrides.len());
+    for entry in overrides {
+        if !entry.source_class.is_phase1_allowed() {
+            return Err(ContextAssemblyError::UnsupportedFreshnessOverride {
+                source_class: entry.source_class.clone(),
+            });
+        }
+        if seen.contains(&&entry.source_class) {
+            return Err(ContextAssemblyError::DuplicateFreshnessOverride {
+                source_class: entry.source_class.clone(),
+            });
+        }
+        seen.push(&entry.source_class);
     }
     Ok(())
 }

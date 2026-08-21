@@ -82,9 +82,7 @@ fn memory_request(sources: Vec<SourceInput>) -> ContextAssemblyRequest {
             accepted_style_rule_refs: vec![],
         },
         allowed_source_classes: vec![SourceClass::GovernedMemoryFact],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 525_600,
-        },
+        freshness_policy: FreshnessPolicy::uniform(525_600),
         override_posture: OverridePosture::DisallowAll,
         sources,
     }
@@ -118,9 +116,7 @@ fn phase1_base_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 120,
-        },
+        freshness_policy: FreshnessPolicy::uniform(120),
         override_posture: OverridePosture::DisallowAll,
         sources: vec![
             manuscript_source("scene://chapter-03/scene-07", SourceClass::ActiveScene, 3),
@@ -160,9 +156,7 @@ fn continuity_request() -> ContextAssemblyRequest {
             SourceClass::AcceptedLoreRecord,
             SourceClass::AcceptedStyleRuleRecord,
         ],
-        freshness_policy: FreshnessPolicy {
-            max_source_age_minutes: 120,
-        },
+        freshness_policy: FreshnessPolicy::uniform(120),
         override_posture: OverridePosture::DisallowAll,
         sources: vec![
             manuscript_source("scene://chapter-05/scene-02", SourceClass::ActiveScene, 4),
@@ -239,9 +233,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // The provenance error must win: an error naming the wrong rule sends a
     // reader to fix something that is not broken.
     let mut also_stale = memory_request(vec![memory_source(None)]);
-    also_stale.freshness_policy = FreshnessPolicy {
-        max_source_age_minutes: 120,
-    };
+    also_stale.freshness_policy = FreshnessPolicy::uniform(120);
     refusals.push(expect_refusal(
         "missing provenance outranks staleness",
         &also_stale,
