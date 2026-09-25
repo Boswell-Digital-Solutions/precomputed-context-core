@@ -25,94 +25,21 @@ inventory that may drift between audits.
 
 | Part | File | Contents |
 | --- | --- | --- |
-| §1 | `00_overview/00-identity.md` | 00. Identity |
-| §2 | `00_overview/01-purpose-and-scope.md` | 01. Purpose and Scope |
-| §3 | `00_overview/02-architecture-overview.md` | 02. Architecture Overview |
-| §4 | `10_service-contract/00-contract-surface.md` | 10. Contract Surface |
-| §5 | `20_runtime/00-runtime-boundary.md` | Runtime Boundary |
-| §6 | `30_dependencies/00-dependencies.md` | 30. Dependencies |
-| §7 | `40_governance/00-versioning-and-slice-progression.md` | 20. Versioning and Slice Progression |
-| §8 | `50_operations/00-validation-and-proof.md` | 40. Validation and Proof |
-| §9 | `99_appendices/00-glossary-and-paths.md` | 99. Appendices — Glossary and Paths |
+| §1 | `00-identity.md` | 00. Identity |
+| §2 | `01-purpose-and-scope.md` | 01. Purpose and Scope |
+| §3 | `02-architecture-overview.md` | 02. Architecture Overview |
+| §4 | `00-contract-surface.md` | 10. Contract Surface |
+| §5 | `00-runtime-boundary.md` | Runtime Boundary |
+| §6 | `00-dependencies.md` | 30. Dependencies |
+| §7 | `00-versioning-and-slice-progression.md` | 20. Versioning and Slice Progression |
+| §8 | `00-validation-and-proof.md` | 40. Validation and Proof |
+| §9 | `00-glossary-and-paths.md` | 99. Appendices — Glossary and Paths |
 
 ## Quick Assembly
 
 ```bash
 bash doc/system/BUILD.sh
 ```
-
----
-
-## 00. Identity
-
-**Document Date:** 2026-04-16  
-**Document Time:** America/New_York  
-**Repo:** `precomputed-context-core`  
-**Repo Root:** `~/Forge/ecosystem/precomputed-context-core`  
-**Proposed Designation:** `PCC`  
-**Repo Class:** Library / Contract  
-**Language:** Rust  
-**Operational Posture:** Internal business system governance, single-operator, fail-closed proof surface
-
-### Identity note
-
-`PCC` is included here as the proposed 3-letter designation for this repository so the documentation system can be assembled deterministically. Final canonical compliance still depends on registry-approved designation uniqueness.
-
----
-
-## 01. Purpose and Scope
-
-`precomputed-context-core` is the governed proof-slice core crate for the BDS precomputed-context program.
-
-Its role is to define and prove bounded contracts for:
-
-- export packaging
-- intake verification
-- trust envelope validation
-- policy-backed import authorization
-- import rehydration
-- promotion, revocation, and re-promotion controls
-- lineage bundling, intake, rehydration, activation, and consumption
-- bounded consumer handoff and acknowledgment
-- downstream release, readiness, attestation, and sealing
-- terminal consumer import validation
-
-### In-scope posture
-
-This repo is responsible for contract truth, proof truth, deterministic report emission, and fail-closed validation behavior for the precomputed-context proof chain.
-
-### Out-of-scope posture
-
-This repo does not own live production orchestration, external service runtime, UI policy surfaces, or registry authority for designation uniqueness.
-
----
-
-## 02. Architecture Overview
-
-The crate is organized as a proof-oriented library with binary proof surfaces.
-
-### Core architecture pattern
-
-- library modules define typed contracts and validation logic
-- proof binaries exercise deterministic success and fail-closed rejection paths
-- proof artifacts are emitted under `target/proof_artifacts/`
-- verification scripts run the full chain end to end
-
-### Current proof posture
-
-The repo has been driven slice by slice through terminal consumer import validation.
-
-The active proof chain includes:
-
-1. package export and zip emission
-2. trusted envelope and import policy enforcement
-3. import intake, rehydration, and roundtrip validation
-4. promotion governance and rollback controls
-5. lineage continuity proof
-6. bounded consumer handoff proof
-7. downstream release and readiness proof
-8. sealed release bundle proof
-9. terminal consumer import and program capstone proof
 
 ---
 
@@ -202,14 +129,6 @@ equivalence is swept rather than argued — see §10.
 
 ---
 
-# Runtime Boundary
-
-**Truth class:** canonical doctrine
-
-`precomputed-context-core` is a library and contract package, not a resident service. Its runtime behavior is limited to deterministic context assembly, contract validation, and package-local proof commands. It does not own durable truth, deployment, or operator control surfaces.
-
----
-
 ## 30. Dependencies
 
 ### Primary technical dependencies
@@ -226,39 +145,47 @@ Dependencies are accepted only when they support deterministic proof emission, v
 
 ---
 
-## 20. Versioning and Slice Progression
+## 99. Appendices — Glossary and Paths
 
-This repo advances through governed proof slices rather than freeform feature drift.
+### Important paths
 
-### Versioning posture
+- Repo root: `~/Forge/ecosystem/precomputed-context-core`
+- Documentation source root: `doc/system/`
+- Build entry: `doc/system/BUILD.sh`
+- Proposed canonical compiled artifact: `doc/PCCSYSTEM.md`
+- Proof artifacts root: `target/proof_artifacts/`
 
-- contracts are introduced in bounded slices
-- proof binaries are added only when a contract family is ready for deterministic validation
-- verification scripts must prove stable repeated emission where required
-- failures must remain fail-closed and must not publish success artifacts on rejected paths
+### Glossary
 
-### Current slice position
+- **Designation:** the governed 3-letter repo identity used in canonical compiled artifact naming
+- **Canonical compiled artifact:** the assembled root document at `doc/{DESIGNATION}SYSTEM.md`
+- **Proof slice:** a bounded implementation and verification increment
+- **Fail-closed:** invalid state rejects clearly and does not publish success artifacts
 
-The repo has reached capstone proof posture through Slice 36, ending at terminal consumer import validation and a program capstone report.
+---
 
-Slice 37 reopens the context-assembly contract to admit a governed memory source
-class. It sits outside the export/import/release chain the capstone sealed, and
-does not disturb it: the two bundle hashes captured before the slice are asserted
-as goldens, so a context bundle assembled under the earlier slices assembles
-identically under this one.
+## 00. Identity
 
-Slice 39 replaces the bundle identity with an algorithm-tagged SHA-256 while
-keeping the FNV-1a one it had, because DataForge's `context_packs` keys on the id
-and never removes rows — so resolution across both forms is the steady state
-rather than a transitional phase. The goldens moved to `legacy_bundle_hash` and
-are asserted there, which is the stronger claim: it proves a pack stored under
-the old id is still findable.
+**Document Date:** 2026-04-16  
+**Document Time:** America/New_York  
+**Repo:** `precomputed-context-core`  
+**Repo Root:** `~/Forge/ecosystem/precomputed-context-core`  
+**Proposed Designation:** `PCC`  
+**Repo Class:** Library / Contract  
+**Language:** Rust  
+**Operational Posture:** Internal business system governance, single-operator, fail-closed proof surface
 
-Slice 38 gives `FreshnessPolicy` per-class limits, closing the gap Slice 37 named
-and worked around. It carries the same goldens forward and adds one of its own
-kind: the freshness-band rule was rewritten, and the rewrite is proven equivalent
-to the rule it replaced by sweeping every age pair across a range of limits with
-no override present, rather than by argument.
+### Identity note
+
+`PCC` is included here as the proposed 3-letter designation for this repository so the documentation system can be assembled deterministically. Final canonical compliance still depends on registry-approved designation uniqueness.
+
+---
+
+# Runtime Boundary
+
+**Truth class:** canonical doctrine
+
+`precomputed-context-core` is a library and contract package, not a resident service. Its runtime behavior is limited to deterministic context assembly, contract validation, and package-local proof commands. It does not own durable truth, deployment, or operator control surfaces.
 
 ---
 
@@ -330,19 +257,92 @@ it would otherwise read as a pass.
 
 ---
 
-## 99. Appendices — Glossary and Paths
+## 20. Versioning and Slice Progression
 
-### Important paths
+This repo advances through governed proof slices rather than freeform feature drift.
 
-- Repo root: `~/Forge/ecosystem/precomputed-context-core`
-- Documentation source root: `doc/system/`
-- Build entry: `doc/system/BUILD.sh`
-- Proposed canonical compiled artifact: `doc/PCCSYSTEM.md`
-- Proof artifacts root: `target/proof_artifacts/`
+### Versioning posture
 
-### Glossary
+- contracts are introduced in bounded slices
+- proof binaries are added only when a contract family is ready for deterministic validation
+- verification scripts must prove stable repeated emission where required
+- failures must remain fail-closed and must not publish success artifacts on rejected paths
 
-- **Designation:** the governed 3-letter repo identity used in canonical compiled artifact naming
-- **Canonical compiled artifact:** the assembled root document at `doc/{DESIGNATION}SYSTEM.md`
-- **Proof slice:** a bounded implementation and verification increment
-- **Fail-closed:** invalid state rejects clearly and does not publish success artifacts
+### Current slice position
+
+The repo has reached capstone proof posture through Slice 36, ending at terminal consumer import validation and a program capstone report.
+
+Slice 37 reopens the context-assembly contract to admit a governed memory source
+class. It sits outside the export/import/release chain the capstone sealed, and
+does not disturb it: the two bundle hashes captured before the slice are asserted
+as goldens, so a context bundle assembled under the earlier slices assembles
+identically under this one.
+
+Slice 39 replaces the bundle identity with an algorithm-tagged SHA-256 while
+keeping the FNV-1a one it had, because DataForge's `context_packs` keys on the id
+and never removes rows — so resolution across both forms is the steady state
+rather than a transitional phase. The goldens moved to `legacy_bundle_hash` and
+are asserted there, which is the stronger claim: it proves a pack stored under
+the old id is still findable.
+
+Slice 38 gives `FreshnessPolicy` per-class limits, closing the gap Slice 37 named
+and worked around. It carries the same goldens forward and adds one of its own
+kind: the freshness-band rule was rewritten, and the rewrite is proven equivalent
+to the rule it replaced by sweeping every age pair across a range of limits with
+no override present, rather than by argument.
+
+---
+
+## 01. Purpose and Scope
+
+`precomputed-context-core` is the governed proof-slice core crate for the BDS precomputed-context program.
+
+Its role is to define and prove bounded contracts for:
+
+- export packaging
+- intake verification
+- trust envelope validation
+- policy-backed import authorization
+- import rehydration
+- promotion, revocation, and re-promotion controls
+- lineage bundling, intake, rehydration, activation, and consumption
+- bounded consumer handoff and acknowledgment
+- downstream release, readiness, attestation, and sealing
+- terminal consumer import validation
+
+### In-scope posture
+
+This repo is responsible for contract truth, proof truth, deterministic report emission, and fail-closed validation behavior for the precomputed-context proof chain.
+
+### Out-of-scope posture
+
+This repo does not own live production orchestration, external service runtime, UI policy surfaces, or registry authority for designation uniqueness.
+
+---
+
+## 02. Architecture Overview
+
+The crate is organized as a proof-oriented library with binary proof surfaces.
+
+### Core architecture pattern
+
+- library modules define typed contracts and validation logic
+- proof binaries exercise deterministic success and fail-closed rejection paths
+- proof artifacts are emitted under `target/proof_artifacts/`
+- verification scripts run the full chain end to end
+
+### Current proof posture
+
+The repo has been driven slice by slice through terminal consumer import validation.
+
+The active proof chain includes:
+
+1. package export and zip emission
+2. trusted envelope and import policy enforcement
+3. import intake, rehydration, and roundtrip validation
+4. promotion governance and rollback controls
+5. lineage continuity proof
+6. bounded consumer handoff proof
+7. downstream release and readiness proof
+8. sealed release bundle proof
+9. terminal consumer import and program capstone proof
