@@ -25,15 +25,15 @@ inventory that may drift between audits.
 
 | Part | File | Contents |
 | --- | --- | --- |
-| §1 | `00_overview/00-identity.md` | 00. Identity |
-| §2 | `00_overview/01-purpose-and-scope.md` | 01. Purpose and Scope |
-| §3 | `00_overview/02-architecture-overview.md` | 02. Architecture Overview |
-| §4 | `10_service-contract/00-contract-surface.md` | 10. Contract Surface |
-| §5 | `20_runtime/00-runtime-boundary.md` | Runtime Boundary |
-| §6 | `30_dependencies/00-dependencies.md` | 30. Dependencies |
-| §7 | `40_governance/00-versioning-and-slice-progression.md` | 20. Versioning and Slice Progression |
-| §8 | `50_operations/00-validation-and-proof.md` | 40. Validation and Proof |
-| §9 | `99_appendices/00-glossary-and-paths.md` | 99. Appendices — Glossary and Paths |
+| §1 | `00-identity.md` | 00. Identity |
+| §2 | `01-purpose-and-scope.md` | 01. Purpose and Scope |
+| §3 | `02-architecture-overview.md` | 02. Architecture Overview |
+| §4 | `00-contract-surface.md` | 10. Contract Surface |
+| §5 | `00-runtime-boundary.md` | Runtime Boundary |
+| §6 | `00-dependencies.md` | 30. Dependencies |
+| §7 | `00-versioning-and-slice-progression.md` | 20. Versioning and Slice Progression |
+| §8 | `00-validation-and-proof.md` | 40. Validation and Proof |
+| §9 | `00-glossary-and-paths.md` | 99. Appendices — Glossary and Paths |
 
 ## Quick Assembly
 
