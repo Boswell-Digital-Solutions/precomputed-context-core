@@ -255,6 +255,21 @@ The proof reports how many age pairs it compared, and a report claiming zero
 disagreements over zero comparisons is the shape a silently-skipped check takes —
 it would otherwise read as a pass.
 
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request and every push to
+`master`, on Rust 1.97.0. Each Rust job first refuses a stale `Cargo.lock`.
+
+- The lint job runs `bash scripts/verify_lint.sh`.
+- The proof job runs `bash scripts/verify_slice_39.sh` first, because it
+  snapshots `schemas/` before `cargo test` regenerates them. That script also
+  runs slices 38 and 37 and the continuity verifier. The job then runs
+  `verify_slice_14.sh` through `verify_slice_36.sh` in order, then
+  `schema_check` and `fixture_check`. It fails if any step changed a tracked
+  file.
+- The documentation job rebuilds `doc/PCCSYSTEM.md` and fails when it differs
+  from `doc/system/`.
+
 ---
 
 ## 20. Versioning and Slice Progression

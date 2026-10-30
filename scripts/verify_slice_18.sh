@@ -18,14 +18,14 @@ if [[ "$trust_hash_1" != "$trust_hash_2" ]]; then
   exit 1
 fi
 
-auth_hash_1="$(sha256sum target/proof_artifacts/slice18_import_authorization/authorization_report.json | awk '{print $1}')"
+auth_hash_1="$(sha256sum target/proof_artifacts/slice19_policy/authorization_report.json | awk '{print $1}')"
 cargo run --bin proof_import_authorize >/dev/null
-auth_hash_2="$(sha256sum target/proof_artifacts/slice18_import_authorization/authorization_report.json | awk '{print $1}')"
+auth_hash_2="$(sha256sum target/proof_artifacts/slice19_policy/authorization_report.json | awk '{print $1}')"
 if [[ "$auth_hash_1" != "$auth_hash_2" ]]; then
   echo "authorization report hash changed across repeated emission"
   exit 1
 fi
 
-test -f target/proof_artifacts/slice18_import_authorization/current/authorization_receipt.json
+test -f target/proof_artifacts/slice19_policy/current/authorization_receipt.json
 
 echo "Slice 18 verification passed"
