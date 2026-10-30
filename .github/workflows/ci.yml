@@ -1,0 +1,86 @@
+name: CI
+
+# The pull-request gate. It runs the repository's own proof machinery rather
+# than a generic cargo test: the lint gate, every slice verifier, and the
+# schema and fixture checkers. A verifier proves a contract property (stable
+# hashes across repeated emission, preserved identities, refusals), which a
+# plain test pass does not.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned so a new stable release cannot add a lint and turn a clean head red.
+  RUST_TOOLCHAIN: "1.97.0"
+
+jobs:
+  lint:
+    name: Lint (fmt, clippy)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal --component rustfmt,clippy
+          rustup default "$RUST_TOOLCHAIN"
+      - name: The lock file is current
+        run: cargo metadata --locked --format-version 1 > /dev/null
+      - run: bash scripts/verify_lint.sh
+
+  proof:
+    name: Contract proofs (slice verifiers, schemas, fixtures)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
+          rustup default "$RUST_TOOLCHAIN"
+      - name: The lock file is current
+        run: cargo metadata --locked --format-version 1 > /dev/null
+      # First, on purpose: verify_slice_39.sh snapshots schemas/ before
+      # cargo test regenerates them. Any earlier cargo test would heal a
+      # drifted schema before the check could see it. It also runs 38, 37 and
+      # the context-assembly continuity check.
+      - name: Slices 39, 38, 37 and continuity (schema drift check first)
+        run: bash scripts/verify_slice_39.sh
+      - name: Slices 14 to 36
+        run: |
+          for n in $(seq 14 36); do
+            echo "::group::verify_slice_$n.sh"
+            bash "scripts/verify_slice_$n.sh"
+            echo "::endgroup::"
+          done
+      - name: Schema and fixture checkers
+        run: |
+          cargo run --locked --bin schema_check
+          cargo run --locked --bin fixture_check
+      - name: The proofs left the tree clean
+        # Catches a regenerated schema, a rewritten fixture or a changed lock.
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
+
+  docs:
+    name: Documentation parity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Rebuild the system document from doc/system/
+        run: bash doc/system/BUILD.sh
+      - name: The committed artifact matches its parts
+        run: git diff --exit-code -- doc/
