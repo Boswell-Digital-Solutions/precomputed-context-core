@@ -25,6 +25,29 @@ env:
   RUST_TOOLCHAIN: "1.97.0"
 
 jobs:
+  # Nothing audited Cargo.lock. The threshold is explicit: a vulnerability fails
+  # the job, and a warning (unmaintained, unsound, yanked) reports without
+  # failing. --deny warnings is deliberately not used, because an
+  # unmaintained-crate advisory would then turn this job red on unchanged code,
+  # and a gate that does that trains people to ignore red CI. An accepted
+  # vulnerability goes here as an explicit, dated --ignore entry.
+  #
+  # Accepted advisories (none today). Add as: --ignore RUSTSEC-YYYY-NNNN \
+  #   # accepted <date>, why
+  audit:
+    name: Dependency advisories
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+        with:
+          toolchain: "1.97.0"
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: cargo audit
+        run: cargo audit
+
   lint:
     name: Lint (fmt, clippy)
     runs-on: ubuntu-24.04
