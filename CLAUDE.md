@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Repo Identity
+
+- Default branch: master
+
 ## Project Overview
 
 `precomputed-context-core` is the core Rust crate for the BDS Precomputed Context Program proof slice — a governed core subsystem for deterministic precomputed context construction and related identity/connectivity behavior. It exists to keep the first implementation slice contract-first, authority-first, and event-first (authority resolution, lifecycle/freshness state algebra, artifact/packet contract validation, event dedupe/coalescing, fixture bundle validation, JSON schema export) rather than letting later service integration redefine the meaning of state, admissibility, or override behavior. This is not an MVP or a generic utility package.
