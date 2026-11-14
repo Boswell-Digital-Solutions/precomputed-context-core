@@ -5,7 +5,7 @@
 - Repo root: `~/Forge/ecosystem/precomputed-context-core`
 - Documentation source root: `doc/system/`
 - Build entry: `doc/system/BUILD.sh`
-- Proposed canonical compiled artifact: `doc/PCCSYSTEM.md`
+- Proposed canonical compiled artifact: `doc/pccSYSTEM.md`
 - Proof artifacts root: `target/proof_artifacts/`
 
 ### Glossary
