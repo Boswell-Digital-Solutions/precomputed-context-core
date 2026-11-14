@@ -1,13 +1,13 @@
 # precomputed-context-core - Compiled System Reference
 
-**Designation:** PCC
+**Designation:** pcc
 **Document role:** Canonical compiled technical reference for the precomputed context core contract package
 **Source:** `doc/system/`
 **Build command:** `bash doc/system/BUILD.sh`
 **Document version:** 2.0 (2026-06-22) - canonical compliance migration
 **Protocol:** BDS Documentation Protocol v2.0; BDS Repo Documentation System Canonical Compliance Standard
 
-> **Generated artifact warning:** `doc/PCCSYSTEM.md` is assembled output. Edit
+> **Generated artifact warning:** `doc/pccSYSTEM.md` is assembled output. Edit
 > the source modules under `doc/system/` and rebuild. Hand edits to the
 > compiled artifact are overwritten by the next build.
 
@@ -15,7 +15,7 @@ Assembly contract:
 
 - Command: `bash doc/system/BUILD.sh`
 - Validation: `bash doc/system/validate_snapshots.sh` runs during assembly
-- Primary output: `doc/PCCSYSTEM.md`
+- Primary output: `doc/pccSYSTEM.md`
 
 This `doc/system/` tree is the canonical source of truth for precomputed-context-core. It uses
 explicit **truth classes**: canonical facts define repo role, authority
@@ -152,7 +152,7 @@ Dependencies are accepted only when they support deterministic proof emission, v
 - Repo root: `~/Forge/ecosystem/precomputed-context-core`
 - Documentation source root: `doc/system/`
 - Build entry: `doc/system/BUILD.sh`
-- Proposed canonical compiled artifact: `doc/PCCSYSTEM.md`
+- Proposed canonical compiled artifact: `doc/pccSYSTEM.md`
 - Proof artifacts root: `target/proof_artifacts/`
 
 ### Glossary
@@ -170,14 +170,14 @@ Dependencies are accepted only when they support deterministic proof emission, v
 **Document Time:** America/New_York  
 **Repo:** `precomputed-context-core`  
 **Repo Root:** `~/Forge/ecosystem/precomputed-context-core`  
-**Proposed Designation:** `PCC`  
+**Proposed Designation:** `pcc`  
 **Repo Class:** Library / Contract  
 **Language:** Rust  
 **Operational Posture:** Internal business system governance, single-operator, fail-closed proof surface
 
 ### Identity note
 
-`PCC` is included here as the proposed 3-letter designation for this repository so the documentation system can be assembled deterministically. Final canonical compliance still depends on registry-approved designation uniqueness.
+`pcc` is included here as the proposed 3-letter designation for this repository so the documentation system can be assembled deterministically. Final canonical compliance still depends on registry-approved designation uniqueness.
 
 ---
 
@@ -267,7 +267,7 @@ it would otherwise read as a pass.
   `verify_slice_14.sh` through `verify_slice_36.sh` in order, then
   `schema_check` and `fixture_check`. It fails if any step changed a tracked
   file.
-- The documentation job rebuilds `doc/PCCSYSTEM.md` and fails when it differs
+- The documentation job rebuilds `doc/pccSYSTEM.md` and fails when it differs
   from `doc/system/`.
 
 ---

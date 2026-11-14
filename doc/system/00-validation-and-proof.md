@@ -76,5 +76,5 @@ it would otherwise read as a pass.
   `verify_slice_14.sh` through `verify_slice_36.sh` in order, then
   `schema_check` and `fixture_check`. It fails if any step changed a tracked
   file.
-- The documentation job rebuilds `doc/PCCSYSTEM.md` and fails when it differs
+- The documentation job rebuilds `doc/pccSYSTEM.md` and fails when it differs
   from `doc/system/`.

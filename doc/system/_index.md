@@ -1,13 +1,13 @@
 # precomputed-context-core - Compiled System Reference
 
-**Designation:** PCC
+**Designation:** pcc
 **Document role:** Canonical compiled technical reference for the precomputed context core contract package
 **Source:** `doc/system/`
 **Build command:** `bash doc/system/BUILD.sh`
 **Document version:** 2.0 (2026-06-22) - canonical compliance migration
 **Protocol:** BDS Documentation Protocol v2.0; BDS Repo Documentation System Canonical Compliance Standard
 
-> **Generated artifact warning:** `doc/PCCSYSTEM.md` is assembled output. Edit
+> **Generated artifact warning:** `doc/pccSYSTEM.md` is assembled output. Edit
 > the source modules under `doc/system/` and rebuild. Hand edits to the
 > compiled artifact are overwritten by the next build.
 
@@ -15,7 +15,7 @@ Assembly contract:
 
 - Command: `bash doc/system/BUILD.sh`
 - Validation: `bash doc/system/validate_snapshots.sh` runs during assembly
-- Primary output: `doc/PCCSYSTEM.md`
+- Primary output: `doc/pccSYSTEM.md`
 
 This `doc/system/` tree is the canonical source of truth for precomputed-context-core. It uses
 explicit **truth classes**: canonical facts define repo role, authority
